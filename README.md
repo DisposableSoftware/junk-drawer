@@ -7,14 +7,15 @@
 <p align="center">A small GTK 4 file manager for Hyprland, in Catppuccin colours.</p>
 
 > [!WARNING]
-> **This is vibe-coded slop. Don't use it.**
+> **Certified, artisanal, vibe-coded slop.**
 >
-> Junk Drawer was written by an AI coding agent, with a human steering and clicking
-> "approve". Nobody has reviewed the code line by line, and it has had almost no real use.
-> It moves, copies and deletes your files, and it may well do that wrong.
-> It's published as an experiment, not as software for anyone to rely on: if you want a
-> file manager, use Nautilus, Thunar or anything else with actual maintainers.
-> No support, no promises; issues and pull requests may never be read.
+> No human has read this code. An AI wrote all of it while a person said "yeah, looks
+> good" and pressed Enter a lot. It has strong opinions about Catppuccin and only mild ones
+> about your data, and it really does copy, move and delete files. If you're fond of yours,
+> use a file manager made by people who know what they're doing.
+>
+> Like any good junk drawer, things get tossed in, nothing gets organised, and the scissors
+> turn up eventually. Bug reports will be read with great affection and then ignored.
 
 ![Junk Drawer's icon view, with thumbnails and the sidebar](docs/screenshots/icons.png)
 
@@ -44,7 +45,7 @@ toolbar, status bar or libadwaita, and every action can be bound to keys of your
 
 ## Install
 
-Read the warning at the top first.
+Still here? Bold. Scroll up, reread the warning, then carry on.
 
 ### Nix
 
