@@ -9,7 +9,7 @@
 | `OPS-3` | Drop action: Ctrl forces copy and Shift forces move. Otherwise the files are moved when they are on the same filesystem (`id::filesystem`) and copied when not. If the source doesn't allow the chosen action, copy is used if allowed, else the drop is refused. | done | manual (tested by hand by the user, 2026-10-17) |
 | `OPS-4` | A drop is refused when a folder would go into itself or a descendant, or when it is a move into the folder the files are already in. | done | `ops::tests::moves_and_refuses_self_nesting` |
 | `OPS-5` | Drop targets highlight with the accent colour while a drag hovers over them. | done | manual (tested by hand by the user, 2026-10-17) |
-| `OPS-13` | While dragging, the drag image is the dragged item as it appears in the view, held at the same point under the pointer where it was grabbed, wherever on the item that is. | planned | `scripts/manual/drag-hit.sh` |
+| `OPS-13` | While dragging, the drag image is the dragged item as it appears in the view, held at the same point under the pointer where it was grabbed, wherever on the item that is. | partial: on Hyprland 0.56 with the default GL renderer the image stays at its top-left corner, because Hyprland drops the hotspot (see Implementation notes). | `scripts/manual/drag-hit.sh` passes with `GSK_RENDERER=cairo` and fails with the default renderer |
 
 ## Copy and move
 
@@ -49,3 +49,4 @@
 - `OPS-11`, `OPS-12`: each copy or move is an `ops::Job` with the conflict asker, the remembered "apply to all" answer, a `gio::Cancellable` and byte counts. Copies use `copy_async`/`move_async` through `gio::GioFuture` for progress, with the job's cancellable. The progress window's one-second wait is paused while a conflict dialog is open.
 - `OPS-3` checks the filesystem with a synchronous local `query_info`, cached per (source, destination) pair. Motion events fire constantly.
 - `g_file_move` returns `WOULD_RECURSE` for a folder on another filesystem, which triggers the copy-then-delete path (`OPS-9`).
+- `OPS-13`: the drag image hotspot is the press point passed to `prepare`. Hyprland 0.56 loses it with GTK's GL and Vulkan renderers: GTK sends `wl_surface.offset` before EGL attaches the buffer, and Hyprland's `wl_surface.attach` handler overwrites the pending offset with the attach x, y (0). It also treats the offset as absolute rather than cumulative, so a later commit snaps it back. The cairo renderer passes the offset in `attach` and works. This is the protocol ambiguity in [wayland#357](https://gitlab.freedesktop.org/wayland/wayland/-/issues/357); the fix belongs in Hyprland (`CWLSurfaceResource` attach handler, `src/protocols/core/Compositor.cpp`).

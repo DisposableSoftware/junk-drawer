@@ -66,7 +66,7 @@ pub fn add_drag_source(
         selection,
         #[upgrade_or]
         None,
-        move |source, _, _| {
+        move |source, x, y| {
             let pos = item.position();
             if !selection.is_selected(pos) {
                 selection.select_item(pos, true);
@@ -76,7 +76,8 @@ pub fn add_drag_source(
                 return None;
             }
             if let Some(widget) = source.widget() {
-                source.set_icon(Some(&gtk::WidgetPaintable::new(Some(&widget))), 0, 0);
+                let image = gtk::WidgetPaintable::new(Some(&widget));
+                source.set_icon(Some(&image), x as i32, y as i32);
             }
             Some(gdk::ContentProvider::for_value(
                 &gdk::FileList::from_array(&files).to_value(),
