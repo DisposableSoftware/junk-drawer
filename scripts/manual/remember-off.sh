@@ -18,11 +18,14 @@ S=$XDG_STATE_HOME/junk-drawer/state.ini
 printf '[view]\nsort-column=size\n' > "$S"
 first() { keys -k Escape -k Home -M ctrl c -m ctrl; sleep 0.2; basename "$(wl-paste -n -t text/uri-list | tr -d '\r')"; }
 
+OUT=${OUT:-$T/shots}; mkdir -p "$OUT"
 launch "$D" "$T/on"
+shot "$OUT/1-remember-on.png"
 check "remember = true uses state.ini (control)" b "$(first)"
 cleanup; sleep 1
 
 launch "$D" "$T/off"
+shot "$OUT/2-remember-off.png"
 check "remember = false ignores state.ini" a "$(first)"
 keys -M ctrl h -m ctrl -M ctrl 2 -m ctrl -k F9 -M ctrl -k equal -m ctrl
 cleanup; sleep 1

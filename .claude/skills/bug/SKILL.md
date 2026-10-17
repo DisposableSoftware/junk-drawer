@@ -24,7 +24,7 @@ Unlike `/feature`, there is no approval gate: once the spec delta is clear, comm
 Reproduce the bug before changing anything, and keep the reproduction as the regression check:
 
 - **Unit test first** when the behaviour can be tested without a display (parsing, sorting, paths, ops on a temp dir, CSS generation). Write the test and confirm it fails.
-- **Otherwise a manual script** in `scripts/manual/` (source `lib.sh`), or a new check in the script that already covers the area. Follow "Manual testing on Hyprland" in `CLAUDE.md`. Its guards matter most here: check there are no `io.github.DisposableSoftware.JunkDrawer` clients, and check that the screen isn't locked. If the user is at the machine, ask before a test that opens a window and takes focus. Run it on an empty workspace, and go back afterwards.
+- **Otherwise a manual script** in `scripts/manual/` (source `lib.sh`), or a new check in the script that already covers the area. Follow "Manual testing" in `CLAUDE.md`: run it headless (`scripts/manual/headless.sh`) unless the bug is in compositor behaviour. On real Hyprland the guards matter most: check there are no `io.github.DisposableSoftware.JunkDrawer` clients, and check that the screen isn't locked. If the user is at the machine, ask before a test that opens a window and takes focus. Run it on an empty workspace, and go back afterwards.
 - Record what you saw (test output, screenshot), so the report can show before and after.
 
 If you can't reproduce it, say what you tried and ask the user for the missing detail. Don't guess at a fix.

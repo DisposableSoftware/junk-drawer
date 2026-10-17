@@ -67,7 +67,7 @@ src/sidebar.rs     sidebar: places, bookmarks, volumes (mount/eject), F9     NAV
 src/openwith.rs    Open With dialog                                          OPS-36
 src/properties.rs  Properties window, background size count                  OPS-36
 src/spec_tests.rs  spec ↔ code conformance tests
-scripts/manual/    Hyprland-driven checks (lib.sh helpers, nav-focus.sh)
+scripts/manual/    UI checks (lib.sh helpers; headless.sh runs one in a headless sway)
 scripts/install.sh install without Nix (PREFIX, DESTDIR, --uninstall)      INT-40
 scripts/release-check.sh  recommended version bump since the last v* tag (spec delta)
 scripts/release.sh  bump, commit "Junk Drawer X.Y.Z", tag, draft notes (no push)
@@ -92,10 +92,22 @@ spec/              the specification
 - Comments only when the reason is not obvious.
 - Unit tests that use GTK must call `gtk::init()` and skip if it fails, because the `nix build` sandbox has no display. GTK may only be initialised on one thread, so keep GTK checks in one test.
 
-## Manual testing on Hyprland
+## Manual testing
 
-Prefer adding a script to `scripts/manual/` (source `lib.sh`, which has the guards below built in) over ad-hoc commands. Each script names the spec IDs it checks. Run it with `./scripts/manual/<name>.sh` after `nix build`.
+Prefer adding a script to `scripts/manual/` (source `lib.sh`, which has the guards below built in) over ad-hoc commands. Each script names the spec IDs it checks. Run it after `nix build`.
 
+### Headless (default)
+
+Run checks with `./scripts/manual/headless.sh ./scripts/manual/<name>.sh`. It starts a headless sway with its own D-Bus session and runtime dir, so it works while the screen is locked or the user has Junk Drawer open, and never touches their windows. `lib.sh` switches to `swaymsg` when `JD_HEADLESS` is set, so scripts don't change.
+
+- The output defaults to 3840×2160 at scale 2, like bayle's monitor. Set `JD_RES` and `JD_SCALE` to test other scales; at scale 1 thin strokes in small text render faint, which is not a layout bug.
+- Send screenshots (`shot`, into `$OUT`) to the user when a change is visual.
+- Headless sway drops the first key after `wtype` loads its keymap; `keys` sends a Shift tap first to absorb it.
+- Headless sway is not Hyprland. Use a real Hyprland session (below) for compositor behaviour: window states, focus rules, drag icons (`OPS-13`).
+
+### On Hyprland
+
+Run `./scripts/manual/<name>.sh` directly.
 
 - Screenshots: `hyprctl clients -j` gives the window geometry, and `grim -g` captures it. Use an `XDG_CONFIG_HOME` in a temp dir to test config variants.
 - Check `pidof hyprlock` first: if the screen is locked, grim captures the lock screen. `systemd-inhibit --what=idle` works, because hypridle respects inhibitors.

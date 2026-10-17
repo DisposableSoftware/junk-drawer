@@ -8,6 +8,21 @@ BIN=${BIN:-./result/bin/junk}
 wins() { hyprctl clients -j | jq "[.[] | select(.class==\"$APP\")]"; }
 win_count() { wins | jq length; }
 active() { hyprctl activewindow -j | jq -r "$1"; }
+focus_app() { hyprctl dispatch "hl.dsp.focus({ window = \"class:$APP\" })" >/dev/null; }
+
+# Under scripts/manual/headless.sh the windows live in a headless sway with its own
+# D-Bus session, so the user's Junk Drawer and lock screen don't matter.
+if [ -n "${JD_HEADLESS:-}" ]; then
+  # Same fields as hyprctl clients -j: class, pid, title, at, size, floating, focused.
+  sway_wins() {
+    swaymsg -t get_tree | jq "[recurse(.nodes[]?, .floating_nodes[]?) | select(.app_id != null)
+      | {class: .app_id, pid, title: .name, at: [.rect.x, .rect.y],
+         size: [.rect.width, .rect.height], floating: (.type == \"floating_con\"), focused}]"
+  }
+  wins() { sway_wins | jq "[.[] | select(.class==\"$APP\")]"; }
+  active() { sway_wins | jq -r "(.[] | select(.focused)) // {} | $1"; }
+  focus_app() { swaymsg "[app_id=\"$APP\"] focus" >/dev/null; }
+fi
 
 # The app is single-instance: launching while the user has Junk Drawer open would join
 # their process, and killing it would close their windows.
@@ -16,6 +31,7 @@ require_no_instance() {
     echo "Junk Drawer is already running; close it first (refusing to touch the user's windows)" >&2
     exit 2
   fi
+  [ -n "${JD_HEADLESS:-}" ] && return
   if pidof hyprlock >/dev/null; then echo "screen is locked" >&2; exit 2; fi
 }
 
@@ -28,7 +44,7 @@ launch() {
   for _ in $(seq 25); do [ "$(win_count)" -gt 0 ] && break; sleep 0.2; done
   sleep 0.4
   PID=$(wins | jq -r '.[0].pid')
-  hyprctl dispatch "hl.dsp.focus({ window = \"class:$APP\" })" >/dev/null
+  focus_app
   sleep 0.3
 }
 
@@ -40,7 +56,9 @@ keys() {
   fi
   # Without a per-key delay wtype sends a whole sequence instantly, faster than the
   # list view processes focus moves; real typing is never that fast.
-  wtype -d 100 "$@"; sleep 0.6
+  # Headless sway drops the first key after wtype uploads its keymap; a Shift tap absorbs it.
+  if [ -n "${JD_HEADLESS:-}" ]; then wtype -d 100 -k Shift_L "$@"; else wtype -d 100 "$@"; fi
+  sleep 0.6
 }
 
 shot() { grim -g "$(active '"\(.at[0]),\(.at[1]) \(.size[0])x\(.size[1])"')" "$1"; }
