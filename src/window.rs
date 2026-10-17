@@ -2,7 +2,7 @@ use crate::{
     caption, clipboard, config, dialog, dnd, help, keys, location, menu, openwith, ops, properties,
     rename, sidebar, sort, thumbnail, zoom,
 };
-use gtk::{gio, glib, pango, prelude::*};
+use gtk::{gdk, gio, glib, pango, prelude::*};
 use std::cell::{Cell, RefCell};
 use std::rc::Rc;
 
@@ -110,6 +110,7 @@ pub fn open_selecting(
 
     for view in [icons.upcast_ref::<gtk::Widget>(), details.upcast_ref()] {
         menu::add_to_view(view, &selection);
+        add_background_click(view, &selection);
         dnd::add_drop_target(
             view,
             glib::clone!(
@@ -889,6 +890,46 @@ fn mouse_nav_action(button: u32) -> Option<&'static str> {
         9 | 10 => Some("win.go-forward"),
         _ => None,
     }
+}
+
+/// A left click on empty space clears the selection, unless Ctrl or Shift is held.
+/// The gesture never claims the press, so rubberband selection still starts.
+fn add_background_click(view: &gtk::Widget, selection: &gtk::MultiSelection) {
+    let click = gtk::GestureClick::builder()
+        .button(gdk::BUTTON_PRIMARY)
+        .build();
+    click.connect_pressed(glib::clone!(
+        #[weak]
+        selection,
+        move |click, _, x, y| {
+            let held = click.current_event_state();
+            if held.intersects(gdk::ModifierType::CONTROL_MASK | gdk::ModifierType::SHIFT_MASK) {
+                return;
+            }
+            let Some(view) = click.widget() else { return };
+            if !is_background(&view, view.pick(x, y, gtk::PickFlags::DEFAULT)) {
+                return;
+            }
+            selection.unselect_all();
+        }
+    ));
+    view.add_controller(click);
+}
+
+/// Whether `picked` is the view's empty space rather than an item (grid `child`,
+/// details `row`) or the details view's column `header`.
+fn is_background(view: &gtk::Widget, picked: Option<gtk::Widget>) -> bool {
+    let mut widget = picked;
+    while let Some(w) = widget {
+        if &w == view {
+            return true;
+        }
+        if matches!(w.css_name().as_str(), "child" | "row" | "header") {
+            return false;
+        }
+        widget = w.parent();
+    }
+    false
 }
 
 fn add_mouse_nav(window: &gtk::ApplicationWindow) {

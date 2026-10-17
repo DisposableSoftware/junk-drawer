@@ -9,7 +9,7 @@
 | `VIEW-3` | The initial view comes from `[view] default` (see `CONF-4`). | done | manual (temp `XDG_CONFIG_HOME`) |
 | `VIEW-4` | The details view has the columns Name (icon and name, expands), Size, Modified (`YYYY-MM-DD HH:MM`, local time) and Type (MIME description). All columns are resizable and can't be reordered. Folders show no size. | done | manual |
 | `VIEW-5` | Selection is multiple, with rubberband selection in both views. | done | manual |
-| `VIEW-6` | A left click on empty space in either view (the background around and below the items, not an item or a column header) clears the selection, as in Nautilus. With Ctrl or Shift held, the click keeps the selection. | planned | `scripts/manual/mouse-select.sh` |
+| `VIEW-6` | A left click on empty space in either view (the background around and below the items, not an item or a column header) clears the selection, as in Nautilus. With Ctrl or Shift held, the click keeps the selection. | done | `scripts/manual/mouse-select.sh` (both views; Ctrl, Shift, the row and the column header keep the selection; a rubberband still starts from empty space) |
 | `VIEW-10` | Sort order: folders always first, then by the active column. The default is Name ascending. | done | `sort::tests`, manual |
 | `VIEW-11` | Name sorting is natural (`file2` before `file10`) and ignores case, and does not depend on locale. Ties are broken by the exact byte order. | done | `sort::tests` |
 | `VIEW-12` | Clicking a details-view column header sorts by that column and toggles the direction. The icon view uses the same sort. | done | manual |

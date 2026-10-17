@@ -2,7 +2,7 @@
 
 The order of `planned` requirements. Change it here when priorities change.
 
-1. `VIEW-6`: a left click on empty space clears the selection.
+Nothing is planned.
 
 ## Verification backlog
 
