@@ -100,7 +100,7 @@ Prefer adding a script to `scripts/manual/` (source `lib.sh`, which has the guar
 
 Run checks with `./scripts/manual/headless.sh ./scripts/manual/<name>.sh`. It starts a headless sway with its own D-Bus session and runtime dir, so it works while the screen is locked or the user has Junk Drawer open, and never touches their windows. `lib.sh` switches to `swaymsg` when `JD_HEADLESS` is set, so scripts don't change.
 
-- The output defaults to 3840×2160 at scale 2, like bayle's monitor. Set `JD_RES` and `JD_SCALE` to test other scales; at scale 1 thin strokes in small text render faint, which is not a layout bug.
+- The output defaults to 3840×2160 at scale 2, a common 4K HiDPI setup. Set `JD_RES` and `JD_SCALE` to test other scales; at scale 1 thin strokes in small text render faint, which is not a layout bug.
 - Send screenshots (`shot`, into `$OUT`) to the user when a change is visual.
 - Headless sway drops the first key after `wtype` loads its keymap; `keys` sends a Shift tap first to absorb it.
 - The runner keeps tests out of the user's session. It uses a private bus without portals (a portal started there attached to the user's Hyprland and mounted a document portal), temp `XDG_STATE_HOME`, `XDG_CONFIG_HOME`, `XDG_CACHE_HOME` and runtime dir, no `$DISPLAY` (a GTK app that missed the headless display once opened on the user's desktop through Xwayland), and `GDK_BACKEND=wayland`. The user's `gtk-4.0/settings.ini` comes in through `XDG_CONFIG_DIRS`, so fonts and icons match. Scripts still set their own config and state dirs: never rely on the runner to protect `~/.local/state/junk-drawer`.

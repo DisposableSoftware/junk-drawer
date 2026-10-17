@@ -4,7 +4,7 @@
 # own D-Bus session and runtime dir, so it works with the screen locked or Junk Drawer
 # open. Hyprland-specific behaviour (window states, drag icons, focus rules) still needs
 # a real Hyprland session. The output defaults to 3840x2160 at scale 2 (JD_RES, JD_SCALE),
-# like bayle's monitor. Screenshots from `shot` go wherever the script puts them.
+# a common 4K HiDPI setup. Screenshots from `shot` go wherever the script puts them.
 set -u
 cd "$(dirname "$0")/../.." || exit 1
 [ $# -ge 1 ] || { echo "usage: $0 scripts/manual/NAME.sh" >&2; exit 2; }
