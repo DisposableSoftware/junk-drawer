@@ -9,6 +9,7 @@ wins() { hyprctl clients -j | jq "[.[] | select(.class==\"$APP\")]"; }
 win_count() { wins | jq length; }
 active() { hyprctl activewindow -j | jq -r "$1"; }
 focus_app() { hyprctl dispatch "hl.dsp.focus({ window = \"class:$APP\" })" >/dev/null; }
+display_scale() { hyprctl monitors -j | jq ".[] | select(.focused) | .scale"; }
 
 # Under scripts/manual/headless.sh the windows live in a headless sway with its own
 # D-Bus session, so the user's Junk Drawer and lock screen don't matter.
@@ -22,6 +23,33 @@ if [ -n "${JD_HEADLESS:-}" ]; then
   wins() { sway_wins | jq "[.[] | select(.class==\"$APP\")]"; }
   active() { sway_wins | jq -r "(.[] | select(.focused)) // {} | $1"; }
   focus_app() { swaymsg "[app_id=\"$APP\"] focus" >/dev/null; }
+  display_scale() { swaymsg -t get_outputs | jq ".[] | select(.focused) | .scale"; }
+  # Scripts read the pointer with hyprctl cursorpos and move it with wlrctl. Sway has no
+  # cursor query, so track the pointer here: park it at 0,0 on the first move, then add
+  # each move, clamped to the output like sway does.
+  PTR=
+  wlrctl() {
+    if [ "$1 $2" != "pointer move" ]; then command wlrctl "$@"; return; fi
+    local w h x y
+    read -r w h < <(swaymsg -t get_outputs | jq -r '.[0].rect | "\(.width) \(.height)"')
+    if [ -z "$PTR" ]; then command wlrctl pointer move -100000 -100000; PTR="0 0"; fi
+    command wlrctl pointer move "$3" "$4"
+    read -r x y <<<"$PTR"
+    x=$((x + $3)); y=$((y + $4))
+    x=$((x < 0 ? 0 : x > w - 1 ? w - 1 : x)); y=$((y < 0 ? 0 : y > h - 1 ? h - 1 : y))
+    PTR="$x $y"
+  }
+  # Never reach the user's real Hyprland: only queries the headless sway can answer work.
+  hyprctl() {
+    local x y
+    case "$1" in
+      cursorpos) read -r x y <<<"${PTR:-0 0}"; printf '{"x": %d, "y": %d}\n' "$x" "$y" ;;
+      monitors) swaymsg -t get_outputs | jq '[.[] | {name, focused, scale, x: .rect.x, y: .rect.y}]' ;;
+      *) echo "headless: hyprctl $* is not available; run this check on Hyprland" >&2; return 1 ;;
+    esac
+  }
+  # ydotool types into the kernel's input devices, so it would act on the real session.
+  ydotool() { echo "headless: ydotool acts on the real session; run this check on Hyprland" >&2; return 1; }
 fi
 
 # The app is single-instance: launching while the user has Junk Drawer open would join
@@ -76,7 +104,7 @@ check() { # check DESCRIPTION EXPECTED ACTUAL
 # so wallpaper showing through the window averages out; the edge is the biggest step.
 sidebar_measure() {
   local png=$1 scale w h top profile edge line bw bx
-  scale=$(hyprctl monitors -j | jq '.[] | select(.focused) | .scale')
+  scale=$(display_scale)
   read -r w h < <(magick identify -format '%w %h' "$png")
   top=$((60 * ${scale%.*}))
   profile=$(magick "$png" -crop "$((w / 2))x$((h / 2 - 40))+0+$((h / 2))" +repage -colorspace Gray -scale "$((w / 2))x1!" -depth 16 txt:- | awk -F'[(,)]' 'NR>1{print $3+0}')

@@ -45,7 +45,7 @@ src/main.rs        GtkApplication, app actions, prgname
 src/cli.rs         --help and --version, before GTK starts                    INT-30, INT-31
 src/config.rs      config.ini + keybindings.ini, first-run files, OnceLock    CONF KEY-2
 src/state.rs       remembered view, sort, hidden, sidebar, zoom (state.ini)  CONF-18…20
-src/theme.rs       Catppuccin palette or GTK theme colours, CSS provider     LOOK
+src/theme.rs       Catppuccin palette or GTK theme colours, CSS, font hinting LOOK
 src/window.rs      window, State (model + history), win.* actions, views     VIEW NAV
 src/keys.rs        keys::BINDINGS + global/local attachment                  KEY
 src/help.rs        keybinding help overlay (?)                               KEY-8…10
@@ -103,7 +103,10 @@ Run checks with `./scripts/manual/headless.sh ./scripts/manual/<name>.sh`. It st
 - The output defaults to 3840×2160 at scale 2, like bayle's monitor. Set `JD_RES` and `JD_SCALE` to test other scales; at scale 1 thin strokes in small text render faint, which is not a layout bug.
 - Send screenshots (`shot`, into `$OUT`) to the user when a change is visual.
 - Headless sway drops the first key after `wtype` loads its keymap; `keys` sends a Shift tap first to absorb it.
+- The runner keeps tests out of the user's session. It uses a private bus without portals (a portal started there attached to the user's Hyprland and mounted a document portal), temp `XDG_STATE_HOME`, `XDG_CONFIG_HOME`, `XDG_CACHE_HOME` and runtime dir, no `$DISPLAY` (a GTK app that missed the headless display once opened on the user's desktop through Xwayland), and `GDK_BACKEND=wayland`. The user's `gtk-4.0/settings.ini` comes in through `XDG_CONFIG_DIRS`, so fonts and icons match. Scripts still set their own config and state dirs: never rely on the runner to protect `~/.local/state/junk-drawer`.
+- In headless mode `hyprctl` only answers `cursorpos` (tracked from `wlrctl` moves) and `monitors`; anything else, and `ydotool` (kernel-level input), fails instead of reaching the real session. Pointer clicks at fixed positions don't always register yet (`sort.sh`, `sidebar.sh`); run those on Hyprland.
 - Headless sway is not Hyprland. Use a real Hyprland session (below) for compositor behaviour: window states, focus rules, drag icons (`OPS-13`).
+- `scripts/manual/scales.sh` runs its checks at scales 1, 1.25, 1.5 and 2 by itself (`LOOK-19`, `LOOK-20`).
 
 ### On Hyprland
 
