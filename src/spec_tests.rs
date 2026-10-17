@@ -54,13 +54,14 @@ fn default_value(cfg: &Config, section: &str, key: &str) -> Option<String> {
         ("view", "show-path") => cfg.show_path.to_string(),
         ("view", "show-sidebar") => cfg.show_sidebar.to_string(),
         ("view", "show-thumbnails") => cfg.show_thumbnails.to_string(),
+        ("view", "remember") => cfg.remember.to_string(),
         ("view", "grid-caption") => cfg.grid_caption.clone(),
         ("view", "icon-size") => cfg.icon_size.to_string(),
         ("view", "list-icon-size") => cfg.list_icon_size.to_string(),
         _ => return None,
     })
 }
-const CONFIG_KEY_COUNT: usize = 11;
+const CONFIG_KEY_COUNT: usize = 12;
 
 fn config_rows() -> Vec<(String, String, String)> {
     table(CONFIGURATION_MD, "config")

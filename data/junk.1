@@ -457,6 +457,16 @@ Whether to show thumbnails in place of icons (see
 .BR THUMBNAILS ).
 .br
 Default: \fBtrue\fR
+.TP
+.B remember
+Whether to remember the view, sort, hidden files, sidebar and zoom between
+sessions, in
+.IR $XDG_STATE_HOME/junk\-drawer/state.ini .
+With \fBfalse\fR that file is neither read nor written, and every window starts
+from the values in
+.IR config.ini .
+.br
+Default: \fBtrue\fR
 .SS style.css
 Extra GTK CSS is read from
 .I $XDG_CONFIG_HOME/junk\-drawer/style.css

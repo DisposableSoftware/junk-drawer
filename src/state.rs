@@ -1,4 +1,4 @@
-//! Remembered preferences in `$XDG_STATE_HOME/junk-drawer/state.ini` (`CONF-18`…`CONF-20`).
+//! Remembered preferences in `$XDG_STATE_HOME/junk-drawer/state.ini` (`CONF-18`…`CONF-20`, `CONF-22`).
 use crate::config;
 use gtk::{gio, glib, prelude::*};
 use std::cell::RefCell;
@@ -134,6 +134,8 @@ impl Saved {
 struct Store {
     saved: Saved,
     loaded: bool,
+    /// The state folder, or `None` with `[view] remember = false` (`CONF-22`).
+    dir: Option<PathBuf>,
     writing: bool,
     dirty: bool,
 }
@@ -142,21 +144,34 @@ thread_local! {
     static STORE: RefCell<Store> = RefCell::default();
 }
 
+/// Reads the remembered preferences from `dir`, or remembers nothing with `None`.
+fn init(store: &mut Store, dir: Option<PathBuf>) {
+    store.saved = dir
+        .as_ref()
+        .map(|d| Saved::load(&d.join("state.ini")))
+        .unwrap_or_default();
+    store.dir = dir;
+    store.loaded = true;
+}
+
 /// The remembered preferences, read from disk on first use.
 pub fn get() -> Saved {
     STORE.with(|s| {
         let mut s = s.borrow_mut();
         if !s.loaded {
-            s.saved = Saved::load(&dir().join("state.ini"));
-            s.loaded = true;
+            init(&mut s, config::get().remember.then(dir));
         }
         s.saved.clone()
     })
 }
 
 /// Changes the remembered preferences and saves them if they changed (`CONF-20`).
+/// Does nothing when remembering is off, so the change stays in its window.
 pub fn update(change: impl FnOnce(&mut Saved)) {
     let mut saved = get();
+    if STORE.with(|s| s.borrow().dir.is_none()) {
+        return;
+    }
     let before = saved.clone();
     change(&mut saved);
     if saved == before {
@@ -170,19 +185,24 @@ pub fn update(change: impl FnOnce(&mut Saved)) {
     flush();
 }
 
+/// The data to write and where, if a save is due.
+fn pending(s: &mut Store) -> Option<(PathBuf, String)> {
+    let dir = s.dir.clone()?;
+    s.dirty = false;
+    Some((dir, s.saved.to_data()))
+}
+
 /// Writes the state file now, for a window that is closing: the app may quit before a
 /// background write runs.
 pub fn save_now() {
-    let data = STORE.with(|s| {
+    let job = STORE.with(|s| {
         let mut s = s.borrow_mut();
         if !s.dirty && !s.writing {
             return None;
         }
-        s.dirty = false;
-        Some(s.saved.to_data())
+        pending(&mut s)
     });
-    let Some(data) = data else { return };
-    let dir = dir();
+    let Some((dir, data)) = job else { return };
     let path = dir.join("state.ini");
     let tmp = dir.join("state.ini.tmp");
     let result = std::fs::create_dir_all(&dir)
@@ -195,18 +215,17 @@ pub fn save_now() {
 
 /// Writes the state file in the background, one write at a time, so the last change wins.
 fn flush() {
-    let data = STORE.with(|s| {
+    let job = STORE.with(|s| {
         let mut s = s.borrow_mut();
         if s.writing || !s.dirty {
             return None;
         }
+        let job = pending(&mut s)?;
         s.writing = true;
-        s.dirty = false;
-        Some(s.saved.to_data())
+        Some(job)
     });
-    let Some(data) = data else { return };
+    let Some((dir, data)) = job else { return };
     glib::spawn_future_local(async move {
-        let dir = dir();
         let result = match std::fs::create_dir_all(&dir) {
             Ok(()) => gio::File::for_path(dir.join("state.ini"))
                 .replace_contents_future(data, None, false, gio::FileCreateFlags::NONE)
@@ -231,6 +250,27 @@ mod tests {
         let dir = std::env::temp_dir().join(format!("junk-state-{name}-{}", std::process::id()));
         std::fs::create_dir_all(&dir).unwrap();
         dir
+    }
+
+    #[test]
+    fn remember_false_neither_reads_nor_writes() {
+        let dir = temp("off");
+        let file = dir.join("state.ini");
+        std::fs::write(&file, "[view]\nmode=details\n").unwrap();
+        STORE.with(|s| init(&mut s.borrow_mut(), Some(dir.clone())));
+        assert_eq!(get().view.as_deref(), Some("details"));
+
+        STORE.with(|s| init(&mut s.borrow_mut(), None));
+        assert_eq!(get(), Saved::default());
+        update(|s| s.show_hidden = Some(true));
+        assert_eq!(get().show_hidden, None);
+        save_now();
+        assert_eq!(
+            std::fs::read_to_string(&file).unwrap(),
+            "[view]\nmode=details\n"
+        );
+        assert_eq!(std::fs::read_dir(&dir).unwrap().count(), 1);
+        std::fs::remove_dir_all(&dir).unwrap();
     }
 
     #[test]

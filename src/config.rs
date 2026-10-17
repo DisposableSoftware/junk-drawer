@@ -22,6 +22,8 @@ pub struct Config {
     pub show_path: bool,
     pub show_sidebar: bool,
     pub show_thumbnails: bool,
+    /// `false` turns off `state.ini` (`CONF-22`).
+    pub remember: bool,
     /// `size`, `modified`, `type`, `permissions` or `none`.
     pub grid_caption: String,
     /// Icon size in pixels for the icon view (Nautilus default: 96).
@@ -43,6 +45,7 @@ impl Default for Config {
             show_path: true,
             show_sidebar: true,
             show_thumbnails: true,
+            remember: true,
             grid_caption: "size".into(),
             icon_size: 96,
             list_icon_size: 32,
@@ -110,6 +113,9 @@ impl Config {
         }
         if let Ok(v) = kf.boolean("view", "show-thumbnails") {
             cfg.show_thumbnails = v;
+        }
+        if let Ok(v) = kf.boolean("view", "remember") {
+            cfg.remember = v;
         }
         if let Ok(v) = kf.string("view", "grid-caption")
             && matches!(
@@ -221,7 +227,7 @@ mod tests {
         std::fs::create_dir_all(&dir).unwrap();
         std::fs::write(
             dir.join("config.ini"),
-            "[view]\nshow-hidden=true\nshow-path=false\nshow-sidebar=false\nshow-thumbnails=false\ngrid-caption=permissions\n[keybindings]\ncopy=<Ctrl>k\n",
+            "[view]\nshow-hidden=true\nshow-path=false\nshow-sidebar=false\nshow-thumbnails=false\nremember=false\ngrid-caption=permissions\n[keybindings]\ncopy=<Ctrl>k\n",
         )
         .unwrap();
         std::fs::write(
@@ -234,6 +240,7 @@ mod tests {
         assert!(!cfg.show_path);
         assert!(!cfg.show_sidebar);
         assert!(!cfg.show_thumbnails);
+        assert!(!cfg.remember);
         assert_eq!(cfg.grid_caption, "permissions");
         assert_eq!(cfg.keybindings["go-up"], ["<Alt>Up", "<Ctrl>u"]);
         assert!(cfg.keybindings["trash"].is_empty());
