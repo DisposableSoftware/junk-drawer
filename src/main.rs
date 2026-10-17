@@ -44,6 +44,9 @@ fn main() -> glib::ExitCode {
 
     app.connect_startup(|app| {
         theme::load(config::get());
+        if let Some(display) = gtk::gdk::Display::default() {
+            theme::follow_scale(&display);
+        }
         // Started by D-Bus for a FileManager1 call: stay up long enough to get it.
         if app.flags().contains(gio::ApplicationFlags::IS_SERVICE) {
             app.set_inactivity_timeout(10_000);

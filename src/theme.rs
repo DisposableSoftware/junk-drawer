@@ -1,5 +1,5 @@
 use crate::config::Config;
-use gtk::{gdk, glib};
+use gtk::{gdk, glib, prelude::*};
 
 const ACCENTS: &[&str] = &[
     "rosewater",
@@ -119,10 +119,69 @@ pub fn load(cfg: &Config) {
     );
 }
 
+/// Whether text should use hinted metrics: only when every monitor has scale 1, where
+/// logical px are device px (`LOOK-20`).
+fn hint_metrics(scales: &[f64]) -> bool {
+    !scales.is_empty() && scales.iter().all(|&s| s == 1.0)
+}
+
+fn set_font_rendering(display: &gdk::Display) {
+    let monitors = display.monitors();
+    let scales: Vec<f64> = (0..monitors.n_items())
+        .filter_map(|i| monitors.item(i).and_downcast::<gdk::Monitor>())
+        .map(|m| m.scale())
+        .collect();
+    let settings = gtk::Settings::for_display(display);
+    if hint_metrics(&scales) {
+        settings.set_gtk_font_rendering(gtk::FontRendering::Manual);
+        settings.set_gtk_hint_font_metrics(true);
+    } else {
+        settings.set_gtk_font_rendering(gtk::FontRendering::Automatic);
+    }
+}
+
+/// Sets the font rendering for the display's scales now and whenever monitors change.
+pub fn follow_scale(display: &gdk::Display) {
+    let watch = |display: &gdk::Display, monitor: &gdk::Monitor| {
+        monitor.connect_scale_notify(glib::clone!(
+            #[weak]
+            display,
+            move |_| set_font_rendering(&display)
+        ));
+    };
+    let monitors = display.monitors();
+    for monitor in (0..monitors.n_items()).filter_map(|i| monitors.item(i).and_downcast()) {
+        watch(display, &monitor);
+    }
+    monitors.connect_items_changed(glib::clone!(
+        #[weak]
+        display,
+        move |monitors, position, _, added| {
+            for i in position..position + added {
+                if let Some(monitor) = monitors.item(i).and_downcast() {
+                    watch(&display, &monitor);
+                }
+            }
+            set_font_rendering(&display);
+        }
+    ));
+    set_font_rendering(display);
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use std::collections::HashSet;
+
+    #[test]
+    fn hints_metrics_only_when_every_monitor_is_scale_1() {
+        assert!(hint_metrics(&[1.0]));
+        assert!(hint_metrics(&[1.0, 1.0]));
+        assert!(!hint_metrics(&[]));
+        assert!(!hint_metrics(&[2.0]));
+        assert!(!hint_metrics(&[1.25]));
+        assert!(!hint_metrics(&[1.0, 2.0]));
+    }
 
     fn defined(css: &str) -> HashSet<String> {
         css.lines()
