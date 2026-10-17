@@ -1,0 +1,637 @@
+.TH JUNK 1 2026-10-17 "junk 0.1.0" "User Commands"
+.\" Left-aligned and unhyphenated, so key names and paths copy as written.
+.nr HY 0
+.ds AD l
+.SH NAME
+junk \- Junk Drawer, a minimal file manager for Hyprland
+.SH SYNOPSIS
+.B junk
+.RI [ OPTION ...]
+.RI [ PATH | URI ...]
+.SH DESCRIPTION
+.B Junk Drawer
+is a lightweight GTK 4 file manager with an icon view and a details view, a
+sidebar of places, bookmarks and volumes, Catppuccin colours and a transparent
+window background.
+.PP
+It opens a window on each
+.I PATH
+or
+.I URI
+given, or on your home folder when there are none.
+URIs can be anything GIO understands, such as
+.B sftp://host/srv
+or
+.BR recent:/// .
+Junk Drawer runs as a single instance: when it is already running, the new windows
+open in that process.
+.PP
+Every window, dialogs included, has the Wayland app_id
+.BR io.github.DisposableSoftware.JunkDrawer ,
+so compositor window rules can match it.
+.SH OPTIONS
+.TP
+.BR \-h ", " \-\-help
+Print a short help and exit.
+.TP
+.BR \-V ", " \-\-version
+Print the version and exit.
+.PP
+Neither option opens a window or contacts a running Junk Drawer.
+GApplication's own options, such as
+.BR \-\-gapplication\-service ,
+which D-Bus activation uses (see
+.BR D-BUS ),
+are accepted too.
+.SH MOUSE
+.TP
+Click, Ctrl+click, Shift+click
+Select an item, toggle it in the selection, or extend the selection to it.
+Dragging on empty space draws a selection rectangle.
+.TP
+Double-click
+Open the item.
+A folder opens in the same window; several selected folders open in new
+windows, and files open in their default applications.
+.TP
+Right-click
+Open the context menu for the selection, or for the folder when clicking
+empty space.
+.TP
+Back and forward thumb buttons
+Go back and forward in the window's history.
+.TP
+Ctrl+scroll
+Zoom the view in or out.
+.TP
+Column header (details view)
+Sort by that column; click again to reverse the order.
+.TP
+Drag and drop
+Dragging items moves them when the destination is on the same filesystem and
+copies them when it is not.
+Hold Ctrl to copy or Shift to move.
+Drop on a folder to put the items in it, or on empty space to put them in the
+current folder.
+Other applications can drag files in and out.
+.TP
+Sidebar
+Click a row to open it.
+Click a volume that isn't mounted to mount it, and its eject button to eject
+or unmount it.
+Right-click a bookmark to remove it.
+.TP
+Up button
+Go to the parent folder.
+.SH KEY BINDINGS
+Each binding has a name, used in the
+.B [keybindings]
+section of
+.I config.ini
+(see
+.BR CONFIGURATION ).
+To change one, write the name and a list of keys separated by
+.BR ; ,
+for example
+.BR "go\-up = <Alt>Up;BackSpace;<Ctrl>u" .
+An empty value unbinds it, and a binding that isn't listed keeps its default
+keys.
+Keys use GTK accelerator syntax: any of
+.BR <Ctrl> ,
+.BR <Shift> ,
+.B <Alt>
+and
+.B <Super>
+followed by a GDK key name, such as
+.BR Return ,
+.BR BackSpace ,
+.B F2
+or
+.BR question .
+.PP
+Keys without Ctrl, Alt or Super work wherever focus is in the window, but
+never while you are typing in a text field.
+Unknown names and keys that can't be parsed are reported once on standard
+error and skipped.
+Press
+.B ?
+in a window to see the bindings in effect.
+.PP
+The bindings and their default keys:
+.TP
+.B new\-window
+New window.
+Opens another window on the current folder.
+.br
+Keys: \fB<Ctrl>n\fR
+.TP
+.B close\-window
+Close window.
+.br
+Keys: \fB<Ctrl>w\fR, \fBq\fR
+.TP
+.B quit
+Quit.
+Closes every window.
+.br
+Keys: \fB<Ctrl>q\fR
+.TP
+.B open
+Open.
+Opens the selected items, as a double-click does.
+.br
+Keys: \fBReturn\fR, \fBKP_Enter\fR, \fBspace\fR
+.TP
+.B rename
+Rename.
+Renames the selected item.
+.br
+Keys: \fBF2\fR
+.TP
+.B view\-icons
+Icon view.
+.br
+Keys: \fB<Ctrl>1\fR
+.TP
+.B view\-details
+Details view.
+.br
+Keys: \fB<Ctrl>2\fR
+.TP
+.B toggle\-hidden
+Toggle hidden files.
+Shows or hides dot files and backup files ending in
+.BR ~ .
+.br
+Keys: \fB<Ctrl>h\fR
+.TP
+.B go\-up
+Go up.
+Opens the parent folder, with the folder you came from selected.
+.br
+Keys: \fB<Alt>Up\fR, \fBBackSpace\fR
+.TP
+.B go\-back
+Back.
+.br
+Keys: \fB<Alt>Left\fR
+.TP
+.B go\-forward
+Forward.
+.br
+Keys: \fB<Alt>Right\fR
+.TP
+.B go\-home
+Home folder.
+.br
+Keys: \fB<Alt>Home\fR
+.TP
+.B reload
+Reload.
+.br
+Keys: \fBF5\fR, \fB<Ctrl>r\fR
+.TP
+.B select\-all
+Select all.
+.br
+Keys: \fB<Ctrl>a\fR
+.TP
+.B unselect\-all
+Select none.
+.br
+Keys: \fBEscape\fR
+.TP
+.B copy
+Copy.
+Puts the selected files on the clipboard, for pasting here or in another
+file manager.
+.br
+Keys: \fB<Ctrl>c\fR
+.TP
+.B cut
+Cut.
+Like copy, but pasting moves the files.
+.br
+Keys: \fB<Ctrl>x\fR
+.TP
+.B paste
+Paste.
+Copies or moves the files on the clipboard into the current folder.
+.br
+Keys: \fB<Ctrl>v\fR
+.TP
+.B trash
+Move to trash.
+In Recent, removes the items from the list instead.
+.br
+Keys: \fBDelete\fR
+.TP
+.B delete
+Delete permanently.
+Asks first.
+In Recent, removes the items from the list instead.
+.br
+Keys: \fB<Shift>Delete\fR
+.TP
+.B new\-folder
+New folder.
+.br
+Keys: \fB<Ctrl><Shift>n\fR
+.TP
+.B open\-with
+Open with.
+Chooses an application for the selected files.
+.br
+Keys: none
+.TP
+.B properties
+Properties.
+Shows the selected items, or the current folder.
+.br
+Keys: \fB<Ctrl>i\fR, \fB<Alt>Return\fR
+.TP
+.B context\-menu
+Context menu.
+Opens the menu at the focused item.
+.br
+Keys: \fBMenu\fR, \fB<Shift>F10\fR
+.TP
+.B zoom\-in
+Zoom in.
+Icon sizes step through 48, 64, 96, 168 and 256 pixels in the icon view, and
+16, 32 and 64 in the details view.
+Each window zooms separately, and the zoom isn't saved.
+.br
+Keys: \fB<Ctrl>plus\fR, \fB<Ctrl>equal\fR, \fB<Ctrl>KP_Add\fR
+.TP
+.B zoom\-out
+Zoom out.
+.br
+Keys: \fB<Ctrl>minus\fR, \fB<Ctrl>KP_Subtract\fR
+.TP
+.B zoom\-reset
+Reset zoom.
+Goes back to the configured icon size.
+.br
+Keys: \fB<Ctrl>0\fR, \fB<Ctrl>KP_0\fR
+.TP
+.B location
+Location.
+Turns the path bar into an entry.
+Type an absolute path,
+.BR ~ ,
+a path relative to the current folder, or a URI, and press Enter; a file
+opens its folder with the file selected.
+Tab completes the last part of the path, and Escape closes the entry.
+.br
+Keys: \fB<Ctrl>l\fR
+.TP
+.B toggle\-sidebar
+Toggle sidebar.
+.br
+Keys: \fBF9\fR
+.TP
+.B add\-bookmark
+Bookmark this folder.
+.br
+Keys: \fB<Ctrl>d\fR
+.TP
+.B sort\-by\-name
+Sort by name.
+Folders always come first.
+Names sort naturally, so
+.B file2
+comes before
+.BR file10 ,
+and case is ignored.
+.br
+Keys: none
+.TP
+.B sort\-by\-size
+Sort by size.
+.br
+Keys: none
+.TP
+.B sort\-by\-modified
+Sort by modified.
+.br
+Keys: none
+.TP
+.B sort\-by\-type
+Sort by type.
+.br
+Keys: none
+.TP
+.B sort\-reversed
+Reverse sort order.
+.br
+Keys: none
+.TP
+.B show\-help
+Keyboard shortcuts.
+Shows the bindings in effect; the next key or click closes the overlay.
+.br
+Keys: \fBquestion\fR
+.SH CONFIGURATION
+Settings are read from
+.I $XDG_CONFIG_HOME/junk\-drawer/config.ini
+(usually
+.IR ~/.config/junk\-drawer/config.ini )
+when Junk Drawer starts; restart it to apply changes.
+The file uses GLib key-file (INI) syntax and every key is optional.
+A missing file isn't an error; a file that can't be read is reported on
+standard error and the defaults are used.
+An example with every key at its default is installed as
+.IR share/doc/junk\-drawer/config.example.ini .
+.SS [appearance]
+.TP
+.B flavor
+The colour scheme, a Catppuccin flavor:
+.BR latte ,
+.BR frappe ,
+.B macchiato
+or
+.BR mocha ,
+or
+.B gtk
+to follow the GTK theme.
+An unknown flavor falls back to mocha.
+.IP
+With
+.BR gtk ,
+the colours come from the GTK theme, such as Stylix's
+.I ~/.config/gtk\-4.0/gtk.css
+or adw\-gtk3: the window background and text colours, with the shades
+between them mixed in Catppuccin's proportions, and the theme's accent colour.
+The theme is read when Junk Drawer starts.
+The accent names in
+.IR style.css ,
+such as \fB@mauve\fR and \fB@red\fR, keep their mocha values.
+.br
+Default: \fBmocha\fR
+.TP
+.B accent
+The Catppuccin accent colour, used for the selection, focus and highlights:
+rosewater, flamingo, pink, mauve, red, maroon, peach, yellow, green, teal, sky,
+sapphire, blue or lavender.
+An unknown accent falls back to mauve.
+Ignored when
+.B flavor
+is
+.BR gtk .
+.br
+Default: \fBmauve\fR
+.TP
+.B opacity
+The opacity of the window background, from 0.0 to 1.0, so the compositor's
+wallpaper or blur shows through.
+.br
+Default: \fB0.85\fR
+.SS [view]
+.TP
+.B default
+The view new windows start in:
+.B icons
+or
+.BR details .
+.br
+Default: \fBicons\fR
+.TP
+.B show\-hidden
+Whether new windows show hidden and backup files.
+.br
+Default: \fBfalse\fR
+.TP
+.B icon\-size
+The icon size in the icon view, in pixels, from 16 to 512.
+.br
+Default: \fB96\fR
+.TP
+.B list\-icon\-size
+The icon size in the details view, in pixels, from 16 to 128.
+.br
+Default: \fB32\fR
+.TP
+.B show\-path
+Whether to show the path bar and its up button above the files.
+.br
+Default: \fBtrue\fR
+.TP
+.B grid\-caption
+The line under each name in the icon view:
+.B size
+(item counts for folders),
+.BR modified ,
+.BR type ,
+.B permissions
+or
+.BR none .
+.br
+Default: \fBsize\fR
+.TP
+.B show\-sidebar
+Whether windows start with the sidebar shown.
+.br
+Default: \fBtrue\fR
+.TP
+.B show\-thumbnails
+Whether to show thumbnails in place of icons (see
+.BR THUMBNAILS ).
+.br
+Default: \fBtrue\fR
+.SS [keybindings]
+See
+.BR "KEY BINDINGS" .
+.SS style.css
+Extra GTK CSS is read from
+.I $XDG_CONFIG_HOME/junk\-drawer/style.css
+after Junk Drawer's own style, so its rules win.
+It can use the palette's colour names:
+.BR @base ,
+.BR @mantle ,
+.BR @text ,
+.BR @mauve
+and the rest of the flavor, plus
+.B @accent
+and
+.B @bg
+(the window background at the configured opacity).
+Junk Drawer's own rules are all under
+.BR window.junk ,
+for example:
+.PP
+.RS
+.nf
+window.junk .sidebar { background: alpha(@crust, 0.6); }
+.fi
+.RE
+.SH THUMBNAILS
+When
+.B show\-thumbnails
+is on, regular local files that have a thumbnail show it in place of their
+icon in both views, scaled to fit and keeping its shape.
+Thumbnails follow the freedesktop Thumbnail Managing Standard, so they are
+shared with Nautilus and other applications.
+.PP
+Thumbnails are made in the background, at most two at a time, for the items
+on screen, newest first; an item keeps its icon until its thumbnail is ready.
+Items scrolled away or in a folder you have left are skipped.
+.SS Cache
+Thumbnails live in
+.IR $XDG_CACHE_HOME/thumbnails/normal/
+(128 pixels) and
+.IR $XDG_CACHE_HOME/thumbnails/large/
+(256 pixels), named by the MD5 sum of the file's URI.
+Junk Drawer uses the large size when the icon size times the display scale is over
+128 pixels, and the normal size otherwise.
+A cached thumbnail is used as long as its
+.B Thumb::MTime
+matches the file's modification time; when the file changes, a new one is
+made.
+.SS Making thumbnails
+For a file with no current thumbnail, Junk Drawer runs the first thumbnailer whose
+.B MimeType
+list has the file's content type.
+Thumbnailers are
+.I *.thumbnailer
+files in
+.I $XDG_DATA_HOME/thumbnailers
+and in the
+.I thumbnailers
+folder of each directory in
+.IR $XDG_DATA_DIRS .
+When two directories have a file with the same name, the earlier one wins.
+In the entry's
+.B Exec
+line,
+.B %i
+is the file's path,
+.B %u
+its URI,
+.B %o
+the output PNG,
+.B %s
+the size in pixels and
+.B %%
+a literal %.
+The list of thumbnailers is read once, when the first thumbnail is needed.
+.PP
+When no thumbnailer handles the type, or the thumbnailer fails, Junk Drawer decodes
+the file itself with GdkPixbuf if it can load that image type and the file is
+at most 50 MB.
+Bigger files are left to thumbnailers.
+.PP
+New thumbnails are saved, readable only by you, with
+.B Thumb::URI
+and
+.BR Thumb::MTime .
+Files inside the thumbnail cache never get thumbnails.
+.SS Failures
+When a thumbnailer or the decoder fails, Junk Drawer records it in
+.I $XDG_CACHE_HOME/thumbnails/fail/junk\-drawer/
+and doesn't try that file again until it changes.
+Types that nothing can handle aren't recorded, so a thumbnailer installed later
+is used straight away.
+.SS Adding a thumbnailer
+Install a package that ships
+.I share/thumbnailers/*.thumbnailer
+files, then restart Junk Drawer.
+For example, ffmpegthumbnailer handles video, evince or papers handle PDF, and
+libgsf handles office documents.
+On NixOS, adding the package to
+.B environment.systemPackages
+or
+.B home.packages
+is enough, because both profiles link
+.IR share/thumbnailers .
+.SS Clearing the cache
+To try failed files again, remove
+.I ~/.cache/thumbnails/fail/junk\-drawer
+and restart Junk Drawer (it remembers thumbnails it has loaded until it exits).
+Removing
+.I ~/.cache/thumbnails
+clears every application's thumbnails, which are then made again as needed.
+.SH FILES
+.TP
+.I $XDG_CONFIG_HOME/junk\-drawer/config.ini
+Settings and key bindings.
+.TP
+.I $XDG_CONFIG_HOME/junk\-drawer/style.css
+Extra GTK CSS.
+.TP
+.I $XDG_CONFIG_HOME/gtk\-3.0/bookmarks
+The sidebar's bookmarks, shared with Nautilus and the GTK file chooser.
+Each line is a URI, optionally followed by a space and a label.
+Junk Drawer watches it, so changes from other applications show at once.
+.TP
+.I $XDG_CONFIG_HOME/user\-dirs.dirs
+The XDG user folders (Desktop, Documents, Downloads, Music, Pictures, Videos)
+listed in the sidebar.
+A folder that is unset, missing or the same as your home is left out.
+.TP
+.I $XDG_CACHE_HOME/thumbnails/
+Thumbnails; see
+.BR THUMBNAILS .
+.TP
+.I $XDG_DATA_HOME/recently\-used.xbel
+The files listed in Recent, which needs gvfs.
+Removing an item from Recent never touches the file.
+.TP
+.I share/doc/junk\-drawer/config.example.ini
+Every setting with its default.
+.TP
+.I share/junk\-drawer/org.freedesktop.FileManager1.service
+The D-Bus activation file; see
+.BR D-BUS .
+.SH ENVIRONMENT
+.TP
+.B XDG_CONFIG_HOME
+Where the settings, bookmarks and user folders are read; default
+.IR ~/.config .
+.TP
+.B XDG_CACHE_HOME
+Where thumbnails are kept; default
+.IR ~/.cache .
+.TP
+.B XDG_DATA_HOME
+Searched first for thumbnailers, and holds the Recent list; default
+.IR ~/.local/share .
+.TP
+.B XDG_DATA_DIRS
+Searched for thumbnailers, desktop entries and MIME data.
+.SH D-BUS
+While Junk Drawer runs it owns
+.B org.freedesktop.FileManager1
+on the session bus, waiting in line if another file manager has it.
+Its
+.BR ShowFolders ,
+.B ShowItems
+and
+.B ShowItemProperties
+methods are what \(lqShow in folder\(rq in browsers and other applications
+calls: they open windows on the folders, select the items, or show their
+properties.
+.PP
+To have D-Bus start Junk Drawer for these calls when it isn't running, link the
+activation file into a
+.I dbus\-1/services
+directory.
+Nautilus ships one for the same name, so the package doesn't install it there.
+The NixOS and home-manager modules do it with
+.BR programs.junk\-drawer.fileManager1 ,
+which is on by default when
+.B programs.junk\-drawer.defaultFileManager
+is.
+.SH SEE ALSO
+.BR xdg\-mime (1),
+.BR xdg\-user\-dirs\-update (1),
+.BR ffmpegthumbnailer (1),
+.BR gio (1)
+.PP
+Thumbnail Managing Standard:
+.br
+https://specifications.freedesktop.org/thumbnail-spec/latest/
+.PP
+Catppuccin:
+.br
+https://catppuccin.com/

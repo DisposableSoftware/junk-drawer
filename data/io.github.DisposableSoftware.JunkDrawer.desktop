@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Junk Drawer
+GenericName=File Manager
+Comment=Minimal file manager
+Exec=junk %U
+Icon=io.github.DisposableSoftware.JunkDrawer
+Terminal=false
+StartupNotify=true
+Categories=GTK;System;FileTools;FileManager;
+MimeType=inode/directory;

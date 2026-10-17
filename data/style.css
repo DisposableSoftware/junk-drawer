@@ -1,0 +1,326 @@
+window.junk {
+  background-color: @bg;
+  color: @text;
+}
+
+window.junk headerbar,
+window.junk scrolledwindow,
+window.junk gridview,
+window.junk columnview,
+window.junk columnview > listview,
+window.junk columnview > header {
+  background: transparent;
+  box-shadow: none;
+  color: @text;
+}
+
+window.junk columnview > header > button {
+  background: transparent;
+  color: @subtext0;
+  border: none;
+}
+
+/* Spacing follows Nautilus 50 (src/resources/style.css). */
+window.junk gridview {
+  padding: 18px;
+  border-spacing: 6px;
+}
+
+window.junk gridview > child {
+  padding: 6px;
+  border-radius: 12px;
+}
+
+window.junk columnview {
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+/* Negative margins extend the rubberband area into the columnview padding. */
+window.junk columnview > listview {
+  padding-top: 16px;
+  padding-bottom: 24px;
+  border-spacing: 8px;
+  margin-left: -24px;
+  margin-right: -24px;
+}
+
+window.junk columnview > listview > row {
+  margin-left: 24px;
+  margin-right: 24px;
+  border-radius: 9px;
+}
+
+window.junk columnview > listview > row > cell {
+  padding: 0 6px;
+}
+
+window.junk gridview > child:hover,
+window.junk columnview > listview > row:hover {
+  background-color: alpha(@surface0, 0.6);
+}
+
+window.junk gridview > child:selected,
+window.junk columnview > listview > row:selected {
+  background-color: alpha(@accent, 0.3);
+  /* Themes set their own selected-text colour, often for a solid accent (LOOK-16). */
+  color: @text;
+}
+
+window.junk rubberband {
+  background-color: alpha(@accent, 0.2);
+  border: 1px solid @accent;
+}
+
+window.junk .dim-label {
+  color: @subtext0;
+}
+
+window.junk gridview > child:drop(active),
+window.junk columnview > listview > row:drop(active),
+window.junk columnview cell:drop(active) {
+  background-color: alpha(@accent, 0.25);
+  box-shadow: inset 0 0 0 1px @accent;
+}
+
+window.junk gridview:drop(active),
+window.junk columnview:drop(active) {
+  box-shadow: inset 0 0 0 2px alpha(@accent, 0.6);
+}
+
+window.junk gridview > child:focus-visible,
+window.junk columnview > listview > row:focus-visible {
+  outline: 1px solid alpha(@accent, 0.8);
+  outline-offset: -1px;
+}
+
+window.junk.ask-name entry {
+  margin: 12px;
+}
+
+window.junk entry {
+  background-color: alpha(@surface0, 0.8);
+  color: @text;
+  border: 1px solid @surface1;
+  border-radius: 8px;
+  box-shadow: none;
+  outline: none;
+}
+
+window.junk entry:focus-within {
+  border-color: @accent;
+}
+
+window.junk text > selection {
+  background-color: alpha(@accent, 0.35);
+  color: @text;
+}
+
+window.junk .path-bar {
+  padding: 8px 18px 0 12px;
+}
+
+window.junk label.path {
+  color: @overlay1;
+  padding-left: 4px;
+}
+
+window.junk .path-bar button.up {
+  color: @overlay1;
+  background: transparent;
+  box-shadow: none;
+  min-width: 24px;
+  min-height: 24px;
+  padding: 2px;
+  border-radius: 6px;
+}
+
+window.junk .path-bar button.up:hover {
+  background-color: alpha(@surface0, 0.6);
+}
+
+window.junk .path-bar button.up:disabled {
+  color: alpha(@overlay1, 0.4);
+}
+
+window.junk .caption {
+  color: @overlay1;
+}
+
+window.junk .help {
+  background-color: alpha(@crust, 0.9);
+  border-radius: 12px;
+  padding: 18px 24px;
+}
+
+window.junk .help .desc {
+  color: @text;
+}
+
+window.junk .help .keys {
+  color: @accent;
+}
+
+/* Context menu and the small windows (LOOK-10). */
+window.junk popover.menu > contents {
+  background-color: @mantle;
+  color: @text;
+}
+
+window.junk popover.menu modelbutton:hover,
+window.junk popover.menu modelbutton:focus {
+  background-color: @surface0;
+  color: @text;
+}
+
+window.junk popover.menu accelerator {
+  color: @overlay1;
+}
+
+window.junk.ask-name,
+window.junk.properties,
+window.junk.open-with,
+window.junk.conflict,
+window.junk.progress {
+  background-color: @mantle;
+}
+
+window.junk.properties label.key {
+  color: @subtext0;
+}
+
+window.junk.open-with list {
+  background: transparent;
+  color: @text;
+}
+
+window.junk.open-with row {
+  padding: 6px 12px;
+}
+
+window.junk.open-with row:hover {
+  background-color: alpha(@surface0, 0.6);
+}
+
+window.junk.open-with row:selected {
+  background-color: alpha(@accent, 0.3);
+  color: @text;
+}
+
+window.junk.open-with label.hint {
+  color: @overlay1;
+}
+
+/* Sidebar (LOOK-12). */
+window.junk scrolledwindow.sidebar {
+  background-color: alpha(@mantle, 0.4);
+  padding: 8px 0 8px 6px;
+  /* Themes draw a line on a sidebar's edge (LOOK-12). */
+  border: none;
+  box-shadow: none;
+}
+
+/* The right gutter is the scrollbar's, which themes would draw over the rows and
+   widen on hover; it stays 6px wide in every state (LOOK-12). */
+window.junk .sidebar .places {
+  margin-right: 6px;
+}
+
+window.junk scrolledwindow.sidebar > scrollbar,
+window.junk scrolledwindow.sidebar > scrollbar trough {
+  background: none;
+  border: none;
+  box-shadow: none;
+  padding: 0;
+  min-width: 6px;
+}
+
+window.junk scrolledwindow.sidebar > scrollbar trough {
+  margin: 2px 0;
+}
+
+window.junk scrolledwindow.sidebar > scrollbar slider {
+  min-width: 4px;
+  margin: 0 1px;
+  border: none;
+  border-radius: 2px;
+  background-color: alpha(@overlay1, 0.5);
+}
+
+window.junk scrolledwindow.sidebar > scrollbar.hovering slider,
+window.junk scrolledwindow.sidebar > scrollbar.dragging slider {
+  background-color: @overlay1;
+}
+
+window.junk .sidebar .place {
+  color: @subtext1;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+window.junk .sidebar .place:hover {
+  background-color: alpha(@surface0, 0.6);
+}
+
+window.junk .sidebar .place.current {
+  background-color: alpha(@accent, 0.25);
+}
+
+window.junk .sidebar separator {
+  background-color: @surface0;
+  margin: 6px 10px;
+}
+
+window.junk .sidebar .place.unmounted label {
+  color: @overlay1;
+}
+
+/* Eject button (LOOK-13), flat like the up button. */
+window.junk .sidebar button.eject {
+  color: @overlay1;
+  background: transparent;
+  box-shadow: none;
+  min-width: 22px;
+  min-height: 22px;
+  padding: 0;
+  margin: -4px 0;
+  border-radius: 6px;
+}
+
+window.junk .sidebar button.eject:hover {
+  background-color: alpha(@surface0, 0.6);
+}
+
+/* Conflict and progress windows (LOOK-14). */
+window.junk.conflict label.heading {
+  font-weight: bold;
+}
+
+window.junk.progress progressbar > trough {
+  background-color: @surface0;
+  min-height: 6px;
+  border-radius: 3px;
+}
+
+window.junk.progress progressbar > trough > progress {
+  background-color: @accent;
+  min-height: 6px;
+  border-radius: 3px;
+}
+
+window.junk.progress label.amount {
+  color: @overlay1;
+}
+
+window.junk.conflict button.suggested-action {
+  background-color: @accent;
+  color: @base;
+}
+
+window.junk.conflict button.suggested-action:hover {
+  background-color: alpha(@accent, 0.85);
+}
+
+window.junk button:focus-visible {
+  outline-color: alpha(@accent, 0.7);
+}

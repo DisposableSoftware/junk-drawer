@@ -1,0 +1,37 @@
+# Integration
+
+## XDG / freedesktop
+
+| ID | Spec | Requirement | Status |
+|----|------|-------------|--------|
+| `INT-1` | Base Directory | Config and cache paths come from `glib::user_config_dir()` / `user_cache_dir()`. They are never hard-coded as `~/.config`. | done |
+| `INT-2` | Desktop Entry | `io.github.DisposableSoftware.JunkDrawer.desktop`: `Name=Junk Drawer`, `Exec=junk %U`, `Icon=io.github.DisposableSoftware.JunkDrawer` (`LOOK-17`), `MimeType=inode/directory`, `Categories=…FileManager`. | done |
+| `INT-3` | Shared MIME-info / mime-apps | Content types and descriptions come from GIO. Files open in the default app from `mimeapps.list` (`gtk::FileLauncher`). | done |
+| `INT-4` | Icon Theme | Item icons come from `FileInfo::icon()` and the current icon theme. | done |
+| `INT-5` | Trash | `OPS-30` uses the XDG trash through GIO/gvfs. | done |
+| `INT-6` | Clipboard / DnD | `text/uri-list`, plus `x-special/gnome-copied-files` for cut/copy (`OPS-1`, `OPS-20`). | done |
+| `INT-7` | Thumbnail Managing | Cached PNGs in `$XDG_CACHE_HOME/thumbnails/{normal,large}`, named by the MD5 of the file's URI, are used while their `Thumb::MTime` matches the file. Missing ones are made by the system's `.thumbnailer` entries (`$XDG_DATA_DIRS/thumbnailers`, by MIME type; `%i %o %s %u` filled in), or in-process with GdkPixbuf for image types it loads, and saved to the cache with `Thumb::URI` and `Thumb::MTime` so other apps share them. A failure is recorded under `fail/junk-drawer/` and not retried until the file changes (`VIEW-37`). | done |
+| `INT-8` | User Dirs | `glib::user_special_dir()` reads `user-dirs.dirs` for the sidebar (`NAV-40`). A dir that is unset, missing, or the same as `$HOME` (how `xdg-user-dirs` disables one) is left out. Rows use the folder's display name. | done |
+| `INT-9` | Bookmarks | GTK's bookmarks file, `$XDG_CONFIG_HOME/gtk-3.0/bookmarks`, shared with Nautilus and the GTK file chooser. Each line is a URI, optionally followed by a space and a label; without a label the row shows the folder's name. The file is watched, so edits from other apps appear at once. | done |
+| `INT-12` | Recent | When gvfs provides `recent:`, the sidebar's first group starts with Recent, which opens `recent:///` (the files in `recently-used.xbel`). gvfs lists only files there, not folders. Items stand for their targets (`standard::target-uri`): opening, Open With, copying, cutting, dragging, Properties and thumbnails all use the real file. As in Nautilus, the item menu offers Remove from Recent in place of Move to Trash and has no Rename or Delete Permanently, and the `trash` and `delete` bindings remove the selected items from the list without asking; the files themselves are never touched. | done |
+| `INT-10` | Removable media | `gio::VolumeMonitor` and `gtk::MountOperation` (udisks2 via gvfs) for mount, unmount and eject in the sidebar (`NAV-43`, `PROD-3`). | done |
+| `INT-11` | `org.freedesktop.FileManager1` | While Junk Drawer runs it owns this name on the session bus (waiting in the queue if another file manager has it) and implements `ShowFolders`, `ShowItems` and `ShowItemProperties` (`NAV-5`), so "Show in folder" in browsers and other apps opens Junk Drawer. The package ships a D-Bus activation file for the name, which the modules install only when asked (`INT-25`), because Nautilus ships one too. | done |
+
+## NixOS
+
+| ID | Requirement | Status |
+|----|-------------|--------|
+| `INT-20` | The flake exports `packages.<system>.default`, `devShells.<system>.default`, `overlays.default` (attr `junk-drawer`), `nixosModules.default` and `homeManagerModules.default`, for x86_64-linux and aarch64-linux. | done |
+| `INT-21` | The package installs `bin/junk` (wrapped by `wrapGAppsHook4`), the desktop entry, the app icon (`LOOK-17`), the example config, the man page (`INT-32`) and, outside the D-Bus search path, the FileManager1 activation file (`INT-25`). `nix build` runs the unit tests and the spec tests. | done |
+| `INT-22` | NixOS module `programs.junk-drawer`: `enable`, `package`, `defaultFileManager` (sets `inode/directory` in `xdg.mime.defaultApplications`), `fileManager1` (`INT-25`). Enabling it turns on `services.gvfs` and `services.udisks2` with `mkDefault`. | done |
+| `INT-23` | Home-manager module `programs.junk-drawer`: `enable`, `package`, `settings` (generates `config.ini`; lists are joined with `;`), `style` (generates `style.css`), `defaultFileManager`, `fileManager1` (`INT-25`). | done |
+| `INT-24` | `nix flake check` passes. | done |
+| `INT-25` | Both modules have `fileManager1` (default: `defaultFileManager`), which installs Junk Drawer's activation file for `org.freedesktop.FileManager1` with high priority, so apps start Junk Drawer rather than Nautilus when neither is running. | done |
+
+## Command line and manual
+
+| ID | Requirement | Status | Verified by |
+|----|-------------|--------|-------------|
+| `INT-30` | `junk --help` (or `-h`) prints a short help to stdout and exits with status 0, without opening a window or reaching a running instance: the usage line `junk [OPTION…] [PATH|URI…]`, one sentence on what the arguments do (`NAV-1`), the options, the paths of `config.ini` and `style.css` (`CONF-9`, `CONF-10`), and a pointer to `junk(1)`. | done | `cli::tests::help_and_version`, `scripts/manual/cli.sh` (Junk Drawer closed and running: no window opens, the running window is untouched) |
+| `INT-31` | `junk --version` (or `-V`) prints `junk <version>`, the version in `Cargo.toml`, and exits with status 0 in the same way. | done | `cli::tests::help_and_version`, `scripts/manual/cli.sh` |
+| `INT-32` | The man page `junk(1)` documents: the synopsis and options (`INT-30`, `INT-31`); what the arguments open (`NAV-1`); the mouse (`NAV-17`, `VIEW-12`, `VIEW-25`); every binding in the default bindings table with its overlay description (`KEY-8`) and default keys, and how to override or unbind one (`KEY-2`, `KEY-7`); every key in the config defaults table with its allowed values and default, and `style.css`; how thumbnails work (`VIEW-37`, `INT-7`): which files get one, the cache folders and sizes, when a cached one is reused, the `.thumbnailer` lookup and the in-process fallback, the 50 MB limit, failure records, and how to add a thumbnailer or clear the cache; files and environment variables; `org.freedesktop.FileManager1` (`INT-11`); and related pages. It renders with `man` without warnings. | done | `spec_tests::man_page_matches_spec` (every binding in order with its overlay description and default keys, every config key with its default, the version in `.TH`), manual (`man --warnings=all -l` prints no warnings; read through at 80 columns; `result/share/man/man1/junk.1.gz` installed) |
