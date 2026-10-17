@@ -47,6 +47,6 @@
     <binary>junk</binary>
   </provides>
   <releases>
-    <release version="0.1.0" date="2026-10-17"/>
+    <release version="1.0.0" date="2026-10-17"/>
   </releases>
 </component>
