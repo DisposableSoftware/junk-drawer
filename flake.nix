@@ -28,6 +28,31 @@
         };
       });
 
+      # INT-24: `nix flake check` runs the tests (by building the package), clippy and rustfmt.
+      checks = forAll (
+        pkgs:
+        let
+          pkg = self.packages.${pkgs.stdenv.hostPlatform.system}.default;
+        in
+        {
+          tests = pkg;
+          clippy = pkg.overrideAttrs (old: {
+            pname = "junk-drawer-clippy";
+            nativeBuildInputs = old.nativeBuildInputs ++ [ pkgs.clippy ];
+            buildPhase = "cargo clippy --all-targets --offline -- -D warnings";
+            doCheck = false;
+            installPhase = "touch $out";
+            postInstall = "";
+            dontFixup = true;
+          });
+          fmt = pkgs.runCommand "junk-drawer-fmt" { nativeBuildInputs = [ pkgs.rustfmt ]; } ''
+            cd ${./.}
+            rustfmt --check --edition 2024 src/main.rs
+            touch $out
+          '';
+        }
+      );
+
       formatter = forAll (pkgs: pkgs.nixfmt);
 
       overlays.default = final: _: { junk-drawer = final.callPackage ./nix/package.nix { }; };

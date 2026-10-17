@@ -5,7 +5,7 @@
 | ID | Requirement | Status | Verified by |
 |----|-------------|--------|-------------|
 | `KEY-1` | Every user-facing action has a binding name, and its defaults are listed in the table below. | done | `spec_tests::keybindings_match_spec` |
-| `KEY-2` | Users override a binding in the `[keybindings]` group of `$XDG_CONFIG_HOME/junk-drawer/keybindings.ini`, writing `name = accel;accel`. An empty value unbinds it. A binding that isn't listed keeps its defaults. A `[keybindings]` section left in `config.ini` is ignored, with one warning on stderr saying bindings now live in `keybindings.ini`. | planned | `config::tests`, manual (stderr) |
+| `KEY-2` | Users override a binding in the `[keybindings]` group of `$XDG_CONFIG_HOME/junk-drawer/keybindings.ini`, writing `name = accel;accel`. An empty value unbinds it. A binding that isn't listed keeps its defaults. A `[keybindings]` section left in `config.ini` is ignored, with one warning on stderr saying bindings now live in `keybindings.ini`. | done | `config::tests::reads_settings_and_keybindings_from_their_files`, manual (stderr shows the one warning for a `[keybindings]` section in `config.ini`) |
 | `KEY-3` | Bindings without Ctrl, Alt or Super (letters, Space, Return, BackSpace, Delete, F-keys) work whenever the main window is focused, wherever focus is inside it. They are never triggered while a text field has focus (e.g. typing `q` in the rename box). | done | `scripts/manual/nav-focus.sh` |
 | `KEY-4` | Bindings with Ctrl, Alt or Super are app-wide accelerators. | done | `keys::tests` |
 | `KEY-5` | Unknown binding names and accelerators that can't be parsed are warned about once on stderr and skipped. They never crash the app. | done | manual (stderr) |

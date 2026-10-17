@@ -42,7 +42,7 @@ The flake only sees git-tracked files. Run `git add` on new files before `nix bu
 ```
 src/main.rs        GtkApplication, app actions, prgname
 src/cli.rs         --help and --version, before GTK starts                    INT-30, INT-31
-src/config.rs      $XDG_CONFIG_HOME/junk-drawer/config.ini, global OnceLock         CONF
+src/config.rs      config.ini + keybindings.ini, first-run files, OnceLock    CONF KEY-2
 src/theme.rs       Catppuccin palette or GTK theme colours, CSS provider     LOOK
 src/window.rs      window, State (model + history), win.* actions, views     VIEW NAV
 src/keys.rs        keys::BINDINGS + global/local attachment                  KEY
@@ -66,7 +66,9 @@ src/openwith.rs    Open With dialog                                          OPS
 src/properties.rs  Properties window, background size count                  OPS-36
 src/spec_tests.rs  spec ↔ code conformance tests
 scripts/manual/    Hyprland-driven checks (lib.sh helpers, nav-focus.sh)
-data/              desktop entry, style.css, themes/<flavor>.css, config.example.ini,
+scripts/install.sh install without Nix (PREFIX, DESTDIR, --uninstall)      INT-40
+data/              desktop entry, metainfo, icons, style.css, themes/<flavor>.css,
+                   config.example.ini + keybindings.example.ini (first-run files) CONF-17
                    junk.1 (man page, checked by spec_tests)               INT-32
 nix/               package.nix, nixos-module.nix, hm-module.nix              INT-2x
 spec/              the specification

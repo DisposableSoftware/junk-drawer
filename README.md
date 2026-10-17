@@ -33,7 +33,7 @@ toolbar, status bar or libadwaita, and every action can be bound to keys of your
   Skip, Rename) with a progress window for long transfers.
 - **Catppuccin theming:** all four flavors and all 14 accents, a transparent window
   background, or `flavor = gtk` to follow your GTK theme (Stylix included).
-- **Keyboard first:** every binding can be changed in `config.ini`; press <kbd>?</kbd> to see them all.
+- **Keyboard first:** every binding can be changed in `keybindings.ini`; press <kbd>?</kbd> to see them all.
 - **Freedesktop integration:** thumbnails shared with other apps, the XDG trash,
   `org.freedesktop.FileManager1` for "Show in folder" in browsers, and the default
   apps from `mimeapps.list`.
@@ -84,8 +84,8 @@ Or with home-manager, which can also write your settings:
     settings = {
       appearance = { flavor = "mocha"; accent = "mauve"; opacity = 0.85; };
       view.default = "icons";
-      keybindings.go-up = [ "<Alt>Up" "BackSpace" ];
     };
+    keybindings.go-up = [ "<Alt>Up" "BackSpace" ];
   };
 }
 ```
@@ -96,15 +96,18 @@ Junk Drawer for "Show in folder" requests when it isn't running. There is also a
 
 ### From source
 
-You need Rust 1.92 or newer, GTK 4.20 or newer, and `pkg-config`. Then:
+You need Rust 1.92 or newer, GTK 4.20 or newer, and `pkg-config`. The install script
+builds a release and puts the binary, desktop entry, icons, AppStream metainfo and man
+page where launchers and `man` look:
 
 ```sh
-cargo build --release
-install -Dm755 target/release/junk ~/.local/bin/junk
-install -Dm644 data/io.github.DisposableSoftware.JunkDrawer.desktop -t ~/.local/share/applications
-install -Dm644 data/io.github.DisposableSoftware.JunkDrawer.svg -t ~/.local/share/icons/hicolor/scalable/apps
-install -Dm644 data/junk.1 -t ~/.local/share/man/man1
+scripts/install.sh                          # into ~/.local
+sudo PREFIX=/usr/local scripts/install.sh   # for every user
+scripts/install.sh --uninstall              # same PREFIX as the install
 ```
+
+Packagers can stage with `DESTDIR`. Make sure `~/.local/bin` is on your `PATH` for a
+user install.
 
 For the trash, Recent and network locations, install `gvfs`; for removable drives,
 `udisks2`. Thumbnails for videos, PDFs and other files come from any installed
@@ -155,9 +158,13 @@ These are the defaults. Press <kbd>?</kbd> in any window to see all of them, wit
 
 ## Configuration
 
-Settings live in `~/.config/junk-drawer/config.ini`. Every key is optional, and changes
-apply when Junk Drawer restarts. [`data/config.example.ini`](data/config.example.ini)
-lists every setting and binding with its default.
+Settings live in `~/.config/junk-drawer/config.ini` and keybindings in
+`~/.config/junk-drawer/keybindings.ini`. The first time Junk Drawer starts, it creates
+whichever is missing, with every option listed at its default but commented out: remove
+the `# ` from a line to change it. It never writes to a file that already exists, so
+configs from dotfiles or home-manager are left alone. Changes apply when Junk Drawer
+restarts. The same lists are in [`data/config.example.ini`](data/config.example.ini) and
+[`data/keybindings.example.ini`](data/keybindings.example.ini).
 
 ```ini
 [appearance]
@@ -170,9 +177,11 @@ opacity = 0.85
 default = icons
 show-sidebar = true
 show-thumbnails = true
+```
 
+```ini
+# keybindings.ini: GTK accelerator syntax; separate keys with ';', leave empty to unbind
 [keybindings]
-# GTK accelerator syntax; separate keys with ';', leave empty to unbind
 go-up = <Alt>Up;BackSpace;<Ctrl>u
 trash =
 ```

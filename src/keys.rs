@@ -11,7 +11,7 @@ pub type Binding = (
 );
 
 /// Config name, GAction, description for the help overlay, default accelerators. The
-/// config name is the key in the `[keybindings]` section of config.ini.
+/// config name is the key in the `[keybindings]` group of keybindings.ini.
 pub const BINDINGS: &[Binding] = &[
     ("new-window", "win.new-window", "New window", &["<Ctrl>n"]),
     (

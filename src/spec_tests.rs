@@ -8,6 +8,7 @@ use gtk::glib;
 const KEYBINDINGS_MD: &str = include_str!("../spec/keybindings.md");
 const CONFIGURATION_MD: &str = include_str!("../spec/configuration.md");
 const EXAMPLE_INI: &str = include_str!("../data/config.example.ini");
+const KEYBINDINGS_INI: &str = include_str!("../data/keybindings.example.ini");
 
 /// Body rows of the table between `<!-- spec:NAME:begin -->` and `...:end -->`.
 fn table(doc: &str, name: &str) -> Vec<Vec<String>> {
@@ -125,16 +126,23 @@ fn example_config_matches_spec() {
             "[{section}] {key}: example vs spec"
         );
     }
+    assert!(
+        !kf.has_group("keybindings"),
+        "bindings belong in keybindings.example.ini (KEY-2)"
+    );
+    let kf = glib::KeyFile::new();
+    kf.load_from_data(KEYBINDINGS_INI, glib::KeyFileFlags::NONE)
+        .unwrap();
     let keys = kf.keys("keybindings").unwrap();
     assert_eq!(
         keys.len(),
         BINDINGS.len(),
-        "config.example.ini must list every binding"
+        "keybindings.example.ini must list every binding"
     );
     for (name, _, _, defaults) in BINDINGS {
         let value = kf
             .value("keybindings", name)
-            .unwrap_or_else(|_| panic!("example lacks {name}"));
+            .unwrap_or_else(|_| panic!("keybindings.example.ini lacks {name}"));
         assert_eq!(
             value.as_str(),
             defaults.join(";"),

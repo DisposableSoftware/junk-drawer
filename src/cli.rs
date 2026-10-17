@@ -22,8 +22,13 @@ fn version() -> String {
 fn help() -> String {
     let dir = glib::user_config_dir().join("junk-drawer");
     let config = dir.join("config.ini").display().to_string();
+    let keys = dir.join("keybindings.ini").display().to_string();
     let style = dir.join("style.css").display().to_string();
-    let w = config.chars().count().max(style.chars().count());
+    let w = [&config, &keys, &style]
+        .iter()
+        .map(|p| p.chars().count())
+        .max()
+        .unwrap_or(0);
     format!(
         "\
 Usage: junk [OPTION…] [PATH|URI…]
@@ -37,7 +42,8 @@ Options:
   -V, --version  Show the version and exit
 
 Files:
-  {config:<w$}  settings and keybindings
+  {config:<w$}  settings
+  {keys:<w$}  keybindings
   {style:<w$}  extra GTK CSS
 
 See junk(1) for the keybindings, every setting and how thumbnails work.

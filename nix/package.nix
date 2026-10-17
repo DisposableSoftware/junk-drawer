@@ -35,7 +35,9 @@ rustPlatform.buildRustPackage {
   postInstall = ''
     install -Dm644 data/io.github.DisposableSoftware.JunkDrawer.desktop -t $out/share/applications
     install -Dm644 data/io.github.DisposableSoftware.JunkDrawer.svg -t $out/share/icons/hicolor/scalable/apps
-    install -Dm644 data/config.example.ini -t $out/share/doc/junk-drawer
+    install -Dm644 data/io.github.DisposableSoftware.JunkDrawer-symbolic.svg -t $out/share/icons/hicolor/symbolic/apps
+    install -Dm644 data/io.github.DisposableSoftware.JunkDrawer.metainfo.xml -t $out/share/metainfo
+    install -Dm644 data/config.example.ini data/keybindings.example.ini -t $out/share/doc/junk-drawer
     installManPage data/junk.1
     # Not in share/dbus-1/services: Nautilus ships the same name, so the modules
     # link it there only when asked (INT-25).

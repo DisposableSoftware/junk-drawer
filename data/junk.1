@@ -86,10 +86,15 @@ Go to the parent folder.
 .SH KEY BINDINGS
 Each binding has a name, used in the
 .B [keybindings]
-section of
-.I config.ini
+group of
+.I $XDG_CONFIG_HOME/junk\-drawer/keybindings.ini
 (see
 .BR CONFIGURATION ).
+A
+.B [keybindings]
+section in
+.I config.ini
+is ignored, with a warning.
 To change one, write the name and a list of keys separated by
 .BR ; ,
 for example
@@ -339,10 +344,23 @@ Settings are read from
 .IR ~/.config/junk\-drawer/config.ini )
 when Junk Drawer starts; restart it to apply changes.
 The file uses GLib key-file (INI) syntax and every key is optional.
-A missing file isn't an error; a file that can't be read is reported on
-standard error and the defaults are used.
-An example with every key at its default is installed as
-.IR share/doc/junk\-drawer/config.example.ini .
+Key bindings live in a second file,
+.IR keybindings.ini ,
+next to it (see
+.BR "KEY BINDINGS" ).
+.PP
+When either file is missing, Junk Drawer creates it on start, listing every
+setting or binding at its default but commented out: remove the leading
+.B #
+from a line and edit it.
+A file that already exists is never written to, even when it is a symlink, so
+files from dotfiles or home-manager are safe.
+A file that can't be read is reported on standard error and the defaults are
+used.
+The same examples, with the values live, are installed as
+.I share/doc/junk\-drawer/config.example.ini
+and
+.IR share/doc/junk\-drawer/keybindings.example.ini .
 .SS [appearance]
 .TP
 .B flavor
@@ -439,9 +457,6 @@ Whether to show thumbnails in place of icons (see
 .BR THUMBNAILS ).
 .br
 Default: \fBtrue\fR
-.SS [keybindings]
-See
-.BR "KEY BINDINGS" .
 .SS style.css
 Extra GTK CSS is read from
 .I $XDG_CONFIG_HOME/junk\-drawer/style.css
@@ -554,7 +569,10 @@ clears every application's thumbnails, which are then made again as needed.
 .SH FILES
 .TP
 .I $XDG_CONFIG_HOME/junk\-drawer/config.ini
-Settings and key bindings.
+Settings.
+.TP
+.I $XDG_CONFIG_HOME/junk\-drawer/keybindings.ini
+Key bindings.
 .TP
 .I $XDG_CONFIG_HOME/junk\-drawer/style.css
 Extra GTK CSS.

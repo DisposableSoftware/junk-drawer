@@ -33,12 +33,20 @@ in
           opacity = 0.85;
         };
         view.default = "details";
-        keybindings.go-up = [
+      };
+      description = "Written to $XDG_CONFIG_HOME/junk-drawer/config.ini.";
+    };
+    keybindings = lib.mkOption {
+      type = lib.types.attrsOf (lib.types.listOf lib.types.str);
+      default = { };
+      example = {
+        go-up = [
           "<Alt>Up"
           "BackSpace"
         ];
+        trash = [ ];
       };
-      description = "Written to $XDG_CONFIG_HOME/junk-drawer/config.ini.";
+      description = "Binding name to keys, written to $XDG_CONFIG_HOME/junk-drawer/keybindings.ini. An empty list unbinds it; see junk(1) for the names.";
     };
     style = lib.mkOption {
       type = lib.types.lines;
@@ -58,6 +66,9 @@ in
     home.packages = [ cfg.package ] ++ lib.optional cfg.fileManager1 fileManager1;
     xdg.configFile."junk-drawer/config.ini" = lib.mkIf (cfg.settings != { }) {
       source = ini.generate "junk-drawer-config.ini" cfg.settings;
+    };
+    xdg.configFile."junk-drawer/keybindings.ini" = lib.mkIf (cfg.keybindings != { }) {
+      source = ini.generate "junk-drawer-keybindings.ini" { inherit (cfg) keybindings; };
     };
     xdg.configFile."junk-drawer/style.css" = lib.mkIf (cfg.style != "") { text = cfg.style; };
     xdg.mimeApps.defaultApplications = lib.mkIf cfg.defaultFileManager {
