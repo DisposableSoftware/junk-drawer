@@ -33,6 +33,7 @@ cargo fmt
 cargo test                     # unit tests + spec conformance tests
 nix build                      # package -> ./result/bin/junk (also runs the tests)
 nix flake check
+git config core.hooksPath .githooks   # once per clone: enables the pre-push release check
 ```
 
 The flake only sees git-tracked files. Run `git add` on new files before `nix build` or `nix develop`. After adding crates, commit `Cargo.lock`, which `nix/package.nix` reads through `cargoLock.lockFile`. `spec/` is part of the package source, because the spec tests `include_str!` it.
@@ -67,6 +68,9 @@ src/properties.rs  Properties window, background size count                  OPS
 src/spec_tests.rs  spec ↔ code conformance tests
 scripts/manual/    Hyprland-driven checks (lib.sh helpers, nav-focus.sh)
 scripts/install.sh install without Nix (PREFIX, DESTDIR, --uninstall)      INT-40
+scripts/release-check.sh  recommended version bump since the last v* tag (spec delta)
+scripts/release.sh  bump, commit "Junk Drawer X.Y.Z", tag, draft notes (no push)
+.githooks/pre-push  blocks history-backup; on a push of main offers to release
 scripts/sync-desktop.sh  dev only: desktop entry + icons for ./result into ~/.local
 data/              desktop entry, metainfo, icons, style.css, themes/<flavor>.css,
                    config.example.ini + keybindings.example.ini (first-run files) CONF-17
