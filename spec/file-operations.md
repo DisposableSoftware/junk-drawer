@@ -9,6 +9,7 @@
 | `OPS-3` | Drop action: Ctrl forces copy and Shift forces move. Otherwise the files are moved when they are on the same filesystem (`id::filesystem`) and copied when not. If the source doesn't allow the chosen action, copy is used if allowed, else the drop is refused. | done | manual (tested by hand by the user, 2026-10-17) |
 | `OPS-4` | A drop is refused when a folder would go into itself or a descendant, or when it is a move into the folder the files are already in. | done | `ops::tests::moves_and_refuses_self_nesting` |
 | `OPS-5` | Drop targets highlight with the accent colour while a drag hovers over them. | done | manual (tested by hand by the user, 2026-10-17) |
+| `OPS-13` | While dragging, the drag image is the dragged item as it appears in the view, held at the same point under the pointer where it was grabbed, wherever on the item that is. | planned | `scripts/manual/drag-hit.sh` |
 
 ## Copy and move
 
