@@ -5,7 +5,7 @@
 | ID | Requirement | Status | Verified by |
 |----|-------------|--------|-------------|
 | `KEY-1` | Every user-facing action has a binding name, and its defaults are listed in the table below. | done | `spec_tests::keybindings_match_spec` |
-| `KEY-2` | Users override a binding in `[keybindings]` of `config.ini`, writing `name = accel;accel`. An empty value unbinds it. A binding that isn't listed keeps its defaults. | done | `config::tests`, manual |
+| `KEY-2` | Users override a binding in the `[keybindings]` group of `$XDG_CONFIG_HOME/junk-drawer/keybindings.ini`, writing `name = accel;accel`. An empty value unbinds it. A binding that isn't listed keeps its defaults. A `[keybindings]` section left in `config.ini` is ignored, with one warning on stderr saying bindings now live in `keybindings.ini`. | planned | `config::tests`, manual (stderr) |
 | `KEY-3` | Bindings without Ctrl, Alt or Super (letters, Space, Return, BackSpace, Delete, F-keys) work whenever the main window is focused, wherever focus is inside it. They are never triggered while a text field has focus (e.g. typing `q` in the rename box). | done | `scripts/manual/nav-focus.sh` |
 | `KEY-4` | Bindings with Ctrl, Alt or Super are app-wide accelerators. | done | `keys::tests` |
 | `KEY-5` | Unknown binding names and accelerators that can't be parsed are warned about once on stderr and skipped. They never crash the app. | done | manual (stderr) |
@@ -60,6 +60,6 @@
 
 ## Implementation notes
 
-- The table lives in code as `keys::BINDINGS`, in the same order, with the overlay description (`KEY-8`) as an extra field. To add a binding, edit this table, `keys::BINDINGS`, `data/config.example.ini` and the man page `data/junk.1` (`INT-32`). The spec tests fail until all four agree.
+- The table lives in code as `keys::BINDINGS`, in the same order, with the overlay description (`KEY-8`) as an extra field. To add a binding, edit this table, `keys::BINDINGS`, `data/keybindings.example.ini` and the man page `data/junk.1` (`INT-32`). The spec tests fail until all four agree.
 - `KEY-3`: unmodified bindings are capture-phase shortcuts on the main window (`keys::attach_local`). Each one is a `CallbackAction` that returns `Proceed` when the focused widget is a `gtk::Editable`. They live on the window, not the view, because changing folder leaves focus nowhere (`NAV-30`). The rename dialog is a separate window, so it never sees them.
 - `KEY-9`: `help::attach` adds a capture key controller and a capture click gesture to the window after `keys::attach_local`. The window runs its newest controllers first, so they see events before the app accelerators and the local bindings. Modifier keys are matched by keysym, because `KeyEvent::is_modifier` is false for `wtype`'s virtual keyboard.
