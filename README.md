@@ -211,6 +211,11 @@ nix build                   # ./result/bin/junk
 The scripts in [`scripts/manual/`](scripts/manual) drive the app on Hyprland to check
 what unit tests can't, such as focus, menus and screenshots.
 
+To launch the dev build from your launcher without installing it, run
+`scripts/sync-desktop.sh` after `nix build`: it copies the desktop entry (pointing at
+`./result/bin/junk`) and the icons into `~/.local/share`, only when they changed.
+`--remove` takes them out again.
+
 ## License
 
 MIT, see [LICENSE](LICENSE).

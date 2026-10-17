@@ -67,6 +67,7 @@ src/properties.rs  Properties window, background size count                  OPS
 src/spec_tests.rs  spec ↔ code conformance tests
 scripts/manual/    Hyprland-driven checks (lib.sh helpers, nav-focus.sh)
 scripts/install.sh install without Nix (PREFIX, DESTDIR, --uninstall)      INT-40
+scripts/sync-desktop.sh  dev only: desktop entry + icons for ./result into ~/.local
 data/              desktop entry, metainfo, icons, style.css, themes/<flavor>.css,
                    config.example.ini + keybindings.example.ini (first-run files) CONF-17
                    junk.1 (man page, checked by spec_tests)               INT-32
