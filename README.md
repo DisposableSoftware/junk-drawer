@@ -166,6 +166,12 @@ configs from dotfiles or home-manager are left alone. Changes apply when Junk Dr
 restarts. The same lists are in [`data/config.example.ini`](data/config.example.ini) and
 [`data/keybindings.example.ini`](data/keybindings.example.ini).
 
+Junk Drawer also remembers what you change while using it: the view, the sort, hidden
+files, the sidebar and the zoom. It keeps them in `~/.local/state/junk-drawer/state.ini`,
+and they win over the matching `[view]` settings, which then only apply until you change
+something. Delete that file to go back to your `config.ini` values, or set
+`remember = false` under `[view]` to always start from them.
+
 ```ini
 [appearance]
 # latte, frappe, macchiato or mocha, or gtk to use your GTK theme's colours
