@@ -2,7 +2,7 @@
 
 The order of `planned` requirements. Change it here when priorities change.
 
-1. `LOOK-18`: the symbolic icon, waiting for the user's review.
+Nothing is planned.
 
 ## Verification backlog
 
