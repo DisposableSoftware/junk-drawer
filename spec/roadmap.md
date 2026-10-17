@@ -2,7 +2,7 @@
 
 The order of `planned` requirements. Change it here when priorities change.
 
-Nothing is planned.
+1. `CONF-22`: `[view] remember = false` turns off remembering, so `config.ini` always applies.
 
 ## Verification backlog
 
