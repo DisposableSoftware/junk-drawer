@@ -4,7 +4,7 @@
 
 | ID | Requirement | Status | Verified by |
 |----|-------------|--------|-------------|
-| `NAV-1` | The app is single-instance, with any number of windows. `new-window` opens a window on the current folder. Launching with no arguments opens a window on `$HOME`. Launching with paths/URIs opens one window per argument. | done | manual |
+| `NAV-1` | The app is single-instance, with any number of windows. `new-window` opens a window on the current folder. Launching with no arguments opens a window on `$HOME`. Launching with paths/URIs opens one window per argument. Only one process ever stays running: launching `junk` again (for example from a launcher keybinding) opens the new windows in the running process, and the new process exits at once. Closing the last window quits the app, except right after D-Bus starts it for a FileManager1 call (`NAV-5`), when it waits 10 seconds for the call. | done | `scripts/manual/single-instance.sh` (two launches give two windows in one process, only one `junk` process runs, closing one window leaves it running, closing the last one ends it) |
 | `NAV-2` | `close-window` closes the current window. `quit` closes all windows. | done | manual (window count) |
 | `NAV-3` | The window title is the current folder's path (`parse_name`). | done | manual |
 | `NAV-4` | All windows, dialogs included, use the Wayland app_id `io.github.DisposableSoftware.JunkDrawer`, so Hyprland window rules match them. | done | manual (`hyprctl clients`: every script finds the windows and dialogs by class `io.github.DisposableSoftware.JunkDrawer`) |
