@@ -19,6 +19,7 @@ mod sidebar;
 mod sort;
 #[cfg(test)]
 mod spec_tests;
+mod state;
 mod theme;
 mod thumbnail;
 mod window;

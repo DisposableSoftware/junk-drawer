@@ -587,6 +587,15 @@ The XDG user folders (Desktop, Documents, Downloads, Music, Pictures, Videos)
 listed in the sidebar.
 A folder that is unset, missing or the same as your home is left out.
 .TP
+.I $XDG_STATE_HOME/junk\-drawer/state.ini
+What Junk Drawer remembers between sessions: the view, sort, hidden files,
+sidebar and zoom sizes.
+Remembered values override the matching settings in
+.IR config.ini .
+Junk Drawer writes this file; delete it to go back to the
+.I config.ini
+values.
+.TP
 .I $XDG_CACHE_HOME/thumbnails/
 Thumbnails; see
 .BR THUMBNAILS .

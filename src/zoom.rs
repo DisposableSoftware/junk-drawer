@@ -1,4 +1,4 @@
-use crate::config;
+use crate::{config, state};
 use gtk::{gdk, gio, glib, prelude::*};
 use std::cell::Cell;
 use std::rc::Rc;
@@ -24,9 +24,10 @@ pub struct Sizes {
 
 impl Sizes {
     pub fn new() -> Rc<Self> {
+        let saved = state::get();
         Rc::new(Self {
-            grid: Cell::new(config::get().icon_size),
-            list: Cell::new(config::get().list_icon_size),
+            grid: Cell::new(saved.icon_size()),
+            list: Cell::new(saved.list_icon_size()),
         })
     }
 }
@@ -62,8 +63,26 @@ pub fn attach(
                     None => return,
                 }
             };
+            if dir == 0 {
+                state::update(|s| {
+                    if grid {
+                        s.icon_size = None
+                    } else {
+                        s.list_icon_size = None
+                    }
+                });
+            }
             if new == cell.get() {
                 return;
+            }
+            if dir != 0 {
+                state::update(|s| {
+                    if grid {
+                        s.icon_size = Some(new)
+                    } else {
+                        s.list_icon_size = Some(new)
+                    }
+                });
             }
             cell.set(new);
             // Setting the factory again re-runs setup, which reads the new size. It also

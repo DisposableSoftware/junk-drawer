@@ -44,6 +44,7 @@ The flake only sees git-tracked files. Run `git add` on new files before `nix bu
 src/main.rs        GtkApplication, app actions, prgname
 src/cli.rs         --help and --version, before GTK starts                    INT-30, INT-31
 src/config.rs      config.ini + keybindings.ini, first-run files, OnceLock    CONF KEY-2
+src/state.rs       remembered view, sort, hidden, sidebar, zoom (state.ini)  CONF-18…20
 src/theme.rs       Catppuccin palette or GTK theme colours, CSS provider     LOOK
 src/window.rs      window, State (model + history), win.* actions, views     VIEW NAV
 src/keys.rs        keys::BINDINGS + global/local attachment                  KEY

@@ -4,7 +4,7 @@
 
 | ID | Spec | Requirement | Status |
 |----|------|-------------|--------|
-| `INT-1` | Base Directory | Config, cache and state paths come from `glib::user_config_dir()` / `user_cache_dir()` / `user_state_dir()`. They are never hard-coded as `~/.config`. | planned |
+| `INT-1` | Base Directory | Config, cache and state paths come from `glib::user_config_dir()` / `user_cache_dir()` / `user_state_dir()`. They are never hard-coded as `~/.config`. | done |
 | `INT-2` | Desktop Entry | `io.github.DisposableSoftware.JunkDrawer.desktop`: `Name=Junk Drawer`, `Exec=junk %U`, `Icon=io.github.DisposableSoftware.JunkDrawer` (`LOOK-17`), `StartupWMClass=io.github.DisposableSoftware.JunkDrawer` (so docks and window switchers match windows to it), `Keywords=` for launcher search (files, folder, directory, explorer, browser), `MimeType=inode/directory`, `Categories=…FileManager`, and a New Window action (`Exec=junk`). It passes `desktop-file-validate`. | done |
 | `INT-3` | Shared MIME-info / mime-apps | Content types and descriptions come from GIO. Files open in the default app from `mimeapps.list` (`gtk::FileLauncher`). | done |
 | `INT-4` | Icon Theme | Item icons come from `FileInfo::icon()` and the current icon theme. | done |

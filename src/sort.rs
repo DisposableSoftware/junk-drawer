@@ -1,3 +1,4 @@
+use crate::state;
 use gtk::{gio, glib, prelude::*};
 use std::cmp::Ordering;
 use std::iter::Peekable;
@@ -135,10 +136,23 @@ pub fn attach(window: &gtk::ApplicationWindow, view: &gtk::ColumnView) {
             }
             let descending = sorter.primary_sort_order() == gtk::SortType::Descending;
             reversed.set_state(&descending.to_variant());
+            if let Some(key) = sorter.primary_sort_column().as_ref().and_then(key_of)
+                && (key.clone(), descending) != state::get().sort()
+            {
+                state::update(|s| {
+                    s.sort_column = Some(key);
+                    s.sort_reversed = Some(descending);
+                });
+            }
         }
     ));
     window.add_action(&by);
     window.add_action(&reversed);
+
+    let (key, descending) = state::get().sort();
+    if let Some(col) = column(view, &key) {
+        view.sort_by_column(Some(&col), order(descending));
+    }
 }
 
 #[cfg(test)]

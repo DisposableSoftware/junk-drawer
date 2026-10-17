@@ -1,6 +1,6 @@
 use crate::{
     caption, clipboard, config, dialog, dnd, help, keys, location, menu, openwith, ops, properties,
-    rename, sidebar, sort, thumbnail, zoom,
+    rename, sidebar, sort, state, thumbnail, zoom,
 };
 use gtk::{gdk, gio, glib, pango, prelude::*};
 use std::cell::{Cell, RefCell};
@@ -82,7 +82,7 @@ pub fn open_selecting(
     startup_id: Option<&str>,
 ) -> gtk::ApplicationWindow {
     let list = gtk::DirectoryList::new(Some(ATTRS), Some(dir));
-    let show_hidden = Rc::new(Cell::new(config::get().show_hidden));
+    let show_hidden = Rc::new(Cell::new(state::get().show_hidden()));
     let filter = gtk::CustomFilter::new(glib::clone!(
         #[strong]
         show_hidden,
@@ -126,7 +126,7 @@ pub fn open_selecting(
     let stack = gtk::Stack::new();
     stack.add_named(&scrolled(&icons), Some("icons"));
     stack.add_named(&scrolled(&details), Some("details"));
-    stack.set_visible_child_name(&config::get().view);
+    stack.set_visible_child_name(&state::get().view());
 
     let window = gtk::ApplicationWindow::builder()
         .application(app)
@@ -186,6 +186,11 @@ pub fn open_selecting(
     body.append(&views);
     content.append(&body);
     window.set_child(Some(&content));
+    // The app may quit before a background save runs.
+    window.connect_close_request(|_| {
+        state::save_now();
+        glib::Propagation::Proceed
+    });
 
     let state = Rc::new(State {
         list,
@@ -385,7 +390,7 @@ fn add_actions(window: &gtk::ApplicationWindow, state: &Rc<State>, stack: &gtk::
 
     let view = gio::ActionEntry::builder("view")
         .parameter_type(Some(&String::static_variant_type()))
-        .state(config::get().view.to_variant())
+        .state(state::get().view().to_variant())
         .activate(glib::clone!(
             #[weak]
             stack,
@@ -396,6 +401,9 @@ fn add_actions(window: &gtk::ApplicationWindow, state: &Rc<State>, stack: &gtk::
                 stack.set_visible_child_name(&name);
                 if let Some(view) = stack.visible_child().and_then(|c| c.first_child()) {
                     view.grab_focus();
+                }
+                if matches!(name.as_str(), "icons" | "details") {
+                    state::update(|s| s.view = Some(name.clone()));
                 }
                 action.set_state(&name.to_variant());
             }
@@ -410,6 +418,8 @@ fn add_actions(window: &gtk::ApplicationWindow, state: &Rc<State>, stack: &gtk::
             move |_: &Win, action, _| {
                 state.show_hidden.set(!state.show_hidden.get());
                 action.set_state(&state.show_hidden.get().to_variant());
+                let shown = state.show_hidden.get();
+                state::update(|s| s.show_hidden = Some(shown));
                 state.filter.changed(gtk::FilterChange::Different);
                 if let Some(captions) = &state.captions {
                     captions.refresh();

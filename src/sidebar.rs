@@ -1,4 +1,4 @@
-use crate::config;
+use crate::state;
 use gtk::{gdk, gio, glib, prelude::*};
 use std::cell::RefCell;
 use std::rc::{Rc, Weak};
@@ -481,7 +481,7 @@ pub fn attach(
         .css_classes(["sidebar"])
         .focusable(false)
         .hexpand(false)
-        .visible(config::get().show_sidebar)
+        .visible(state::get().show_sidebar())
         .build();
     body.prepend(&root);
 
@@ -592,7 +592,11 @@ pub fn attach(
     toggle.connect_activate(glib::clone!(
         #[strong]
         sidebar,
-        move |_, _| sidebar.root.set_visible(!sidebar.root.get_visible())
+        move |_, _| {
+            let shown = !sidebar.root.get_visible();
+            sidebar.root.set_visible(shown);
+            state::update(|s| s.show_sidebar = Some(shown));
+        }
     ));
     window.add_action(&toggle);
 
