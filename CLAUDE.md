@@ -1,4 +1,4 @@
-# file
+# Junk Drawer
 
 A lightweight, minimal Linux file manager built for Hyprland. Display name **Junk Drawer**, binary `junk`, app ID `io.github.DisposableSoftware.JunkDrawer`.
 
