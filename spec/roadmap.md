@@ -2,7 +2,7 @@
 
 The order of `planned` requirements. Change it here when priorities change.
 
-Nothing is planned.
+1. `LOOK-19`, `LOOK-20`: correct at every display scale, with sharp text at scale 1.
 
 ## Verification backlog
 
