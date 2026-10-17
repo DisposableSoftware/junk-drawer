@@ -2,7 +2,7 @@
 
 The order of `planned` requirements. Change it here when priorities change.
 
-Nothing is planned.
+1. `CONF-18`…`CONF-21`: remember the view, sort, hidden files, sidebar, zoom and window size between sessions (state file). This also re-plans `VIEW-3`, `VIEW-10`, `VIEW-25`, `NAV-20`, `NAV-41` and `INT-1`.
 
 ## Verification backlog
 
