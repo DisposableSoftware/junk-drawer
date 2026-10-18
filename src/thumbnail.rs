@@ -60,6 +60,17 @@ fn fail_path(uri: &str) -> PathBuf {
         .join(format!("{}.png", md5(uri)))
 }
 
+/// Where an external thumbnailer writes before the PNG is checked and saved. The size
+/// is in the name because both sizes of one file can be made at once (`INT-7`).
+fn temp_path(uri: &str, size: Size) -> PathBuf {
+    root().join(format!(
+        "junk-drawer-{}-{}-{}.png",
+        std::process::id(),
+        size.dir(),
+        md5(uri)
+    ))
+}
+
 /// The value of a PNG `tEXt` chunk, which is how thumbnails carry `Thumb::MTime`.
 fn png_text(png: &[u8], key: &str) -> Option<String> {
     let mut rest = png.strip_prefix(b"\x89PNG\r\n\x1a\n")?;
@@ -352,11 +363,7 @@ impl Thumbnails {
             .iter()
             .find(|t| t.mime_types.contains(&r.mime))?;
         let input = r.file.path()?;
-        let tmp = root().join(format!(
-            "junk-drawer-{}-{}.png",
-            std::process::id(),
-            md5(&r.uri)
-        ));
+        let tmp = temp_path(&r.uri, r.size);
         let argv = expand(&thumbnailer.exec, &input, &r.uri, &tmp, r.size.pixels());
         let argv: Vec<&std::ffi::OsStr> = argv.iter().map(std::ffi::OsStr::new).collect();
         mkdirs(&gio::File::for_path(root())).await;
@@ -469,6 +476,11 @@ mod tests {
         );
         assert_eq!(Size::for_pixels(96), Size::Normal);
         assert_eq!(Size::for_pixels(192), Size::Large);
+        assert_ne!(
+            temp_path("file:///a", Size::Normal),
+            temp_path("file:///a", Size::Large),
+            "two sizes of one file at once must not share a temporary file"
+        );
     }
 
     #[test]

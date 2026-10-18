@@ -2,7 +2,7 @@
 
 The order of `planned` requirements. Change it here when priorities change.
 
-1. `INT-7`: thumbnails at two sizes of one file made at the same time (bug: the large one was recorded as failed).
+Nothing is planned.
 
 ## Verification backlog
 
