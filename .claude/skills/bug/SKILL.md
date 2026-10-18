@@ -1,17 +1,15 @@
 ---
 name: bug
-description: Turn a bug report for Junk Drawer into a reproduction, a root cause, and the spec change that makes the expected behaviour explicit, then fix the code to match and verify it. Use when the user runs /bug.
+description: Turn a bug report for Junk Drawer into a reproduction, a root cause, and the spec change that makes the expected behaviour explicit, then ask the user to approve it and either implement the fix through /implement or leave it planned. Use when the user runs /bug.
 argument-hint: <what went wrong, and what you expected>
 disable-model-invocation: true
 ---
 
-# /bug — reproduce, close the spec gap, fix
+# /bug — reproduce, close the spec gap, approve
 
 Report: $ARGUMENTS
 
-Follow the spec-first workflow in `CLAUDE.md`. A bug means the spec failed to pin down the behaviour, or the checks failed to hold the code to it. The point of this skill is to fix both, so the same bug can't come back unnoticed.
-
-Unlike `/feature`, there is no approval gate: once the spec delta is clear, commit it and implement it. Stop and ask only in the cases listed in step 4.
+Follow the spec-first workflow in `CLAUDE.md`. A bug means the spec failed to pin down the behaviour, or the checks failed to hold the code to it. This skill fixes both on paper: a reproduction that fails, and a spec change that says what should happen. The fix itself is built by `/implement` (`.claude/skills/implement/SKILL.md`), right away or later, as the user chooses in step 5.
 
 ## 1. Understand the report
 
@@ -31,15 +29,15 @@ If you can't reproduce it, say what you tried and ask the user for the missing d
 
 ## 3. Find the root cause
 
-Trace the bug to its cause in the code. Read GTK/GIO docs or source rather than guessing (see `CLAUDE.md`). Then look for the same mistake elsewhere: other views, dialogs or code paths with the same pattern. The spec change should state the general rule, not just the one instance.
+Trace the bug to its cause in the code. Read GTK/GIO docs or source rather than guessing (see `CLAUDE.md`). Then look for the same mistake elsewhere: other views, dialogs or code paths with the same pattern. The spec change should state the general rule, not just the one instance. Don't change the code.
 
-## 4. Decide the spec delta
+## 4. Draft the spec delta
 
 Classify the bug against the spec:
 
 | Case | Spec change |
 |------|-------------|
-| A requirement covers the behaviour and the code breaks it | The text is fine. Fix why it slipped through: tighten the row's **Verified by** to name the new regression check. If the row was `done`, it stays `done` once the fix is verified. |
+| A requirement covers the behaviour and the code breaks it | The text is fine. Set the status to `partial` with the bug written in as the gap, and name the regression check in **Verified by**. |
 | A requirement is vague or incomplete, so the bug was allowed | Reword the row so the expected behaviour is explicit and checkable. Reset its status to `planned`. |
 | No requirement covers it | Add a row with the next free ID in the right prefix, with status `planned` (as `NAV-30` came from a bug). |
 | The general rule belongs in more than one place | Update every affected row, or add one rule and reference it from the others. |
@@ -47,38 +45,33 @@ Classify the bug against the spec:
 
 Stop and ask with `AskUserQuestion` (quote the rows by ID and text, and give concrete options, recommended first) when:
 
-- **The spec asks for the reported behaviour.** Then it isn't a bug against the spec. Offer: change the spec (then continue as a feature, with the user's choice as the approval), or keep it as is.
+- **The spec asks for the reported behaviour.** Then it isn't a bug against the spec. Offer: change the spec (then continue as `/feature` does from its step 3), or keep it as is.
 - **The fix would change a `done` requirement beyond the bug**, or conflict with another requirement, a non-goal or a stack constraint in `spec/product.md`.
 - **There are several reasonable expected behaviours**, and the spec's conventions (matching Nautilus, XDG, Catppuccin) don't pick one.
 
-Write each requirement as one checkable sentence about behaviour. Update `roadmap.md` with any `planned` rows. Re-check the draft against the whole spec for new conflicts.
+Write each requirement as one checkable sentence about behaviour, and name the regression check from step 2 in its **Verified by**. Add each touched row to `roadmap.md`, near the top: a known bug usually comes before new features. Re-check the draft against the whole spec for new conflicts.
 
-## 5. Commit the spec
+## 5. Ask for approval
 
-Commit the spec change on its own: `spec: <summary> (ID)`. In the body, give the bug in one line (observed vs expected) and the root cause. Use the usual trailers.
-
-## 6. Fix
-
-Implement only what the spec delta says. If the fix needs behaviour the spec doesn't describe, go back to step 4. Keep the change small, and match the surrounding code.
-
-## 7. Verify
-
-Follow step 3 of the workflow in `CLAUDE.md`:
-
-- The regression check from step 2 now passes. It failed before the fix.
-- `cargo clippy --all-targets -- -D warnings`, `cargo test` (spec conformance included) and `nix build` pass.
-- Check every touched ID as its **Verified by** says. Re-run the manual scripts for the area, since a fix often moves something they rely on.
-- Re-read the change against the requirement text, and look for behaviour the spec doesn't mention.
-
-Then set each touched row to `done` (or `partial`, with the gap written in), fill in **Verified by** with the regression check, and update `roadmap.md`.
-
-## 8. Commit and report
-
-Commit the code with a `Spec: ID, ID` trailer. In the body, give the cause and the fix.
-
-Report to the user. They didn't approve the spec beforehand, so show it here:
+Show the user:
 
 - **Bug and cause:** observed vs expected, and the root cause in a sentence or two.
 - **Spec delta:** each changed row before and after, and each new row in full.
-- **Verification:** the regression check (failed before, passes now) and the other checks run. Send screenshots of visual fixes with `SendUserFile`.
-- **Anything left `partial` or unverified**, and related problems you noticed but didn't fix.
+- **Regression check:** what it is and what it showed (it fails now).
+- Other places with the same mistake, and anything you assumed.
+
+Then ask with `AskUserQuestion`:
+
+- **Approve and implement** (recommended): commit the spec and the reproduction, then fix it now through `/implement`.
+- **Approve spec only**: commit the spec and the reproduction, leave the rows in the roadmap for `/implement`, and stop.
+- **Revise**: the user says what to change. Apply it, re-check it as in step 4, then return to the start of step 5.
+- **Discard**: restore the spec files you changed and remove the reproduction, then stop.
+
+Never treat silence, or an unrelated message, as approval.
+
+## 6. After approval
+
+1. Commit the spec on its own: `spec: <summary> (ID)`. In the body, give the bug in one line (observed vs expected) and the root cause. Use the usual trailers.
+2. Commit the reproduction on its own: `Reproduce <summary>` with a `Spec: ID` trailer. A unit test that fails would break `cargo test` and `nix build`, so commit it with `#[ignore = "<ID>: fails until fixed"]`. `/implement` removes the attribute. Manual scripts don't run in the build and need no marker.
+3. **Approve spec only:** report the IDs now in the roadmap and stop. The user runs `/implement` when they want the fix.
+4. **Approve and implement:** read `.claude/skills/implement/SKILL.md` and follow it with these IDs as the limit. Its report is this skill's report, and it should show the regression check failing before the fix and passing after.

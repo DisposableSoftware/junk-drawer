@@ -9,14 +9,14 @@ disable-model-invocation: true
 
 Limit: $ARGUMENTS
 
-Follow the spec-first workflow in `CLAUDE.md`. The spec rows are already agreed: a `planned` row went through `/feature` or `/bug`, so there is no approval gate here. This skill does steps 2–4 of the workflow for each outstanding item, one item at a time, in the order `spec/roadmap.md` gives.
+Follow the spec-first workflow in `CLAUDE.md`. The spec rows are already agreed: they were approved through `/feature` or `/bug`, so there is no approval gate here. `/feature` and `/bug` also hand over to this skill, with the IDs they just approved as the limit. This skill does steps 2–4 of the workflow for each outstanding item, one item at a time, in the order `spec/roadmap.md` gives.
 
 ## 1. Collect the work
 
 1. Read `spec/README.md` and `spec/roadmap.md`, then search all of `spec/` for rows with status `planned` or `partial`.
 2. The work list, in order:
    1. **The verification backlog** in `roadmap.md`. The roadmap says to clear it before new planned work.
-   2. **Planned requirements**, in the order the roadmap lists them.
+   2. **The requirements the roadmap lists**, in its order: `planned` rows, and `partial` rows that `/bug` left with the bug written in as the gap.
 3. If the limit above names IDs, keep only those items, still in roadmap order.
 4. Check the roadmap against the spec:
    - A `planned` row that the roadmap doesn't list: add it to the end of the roadmap's list, and say so in the report.
@@ -47,10 +47,10 @@ For each item in turn:
    - For manual checks, follow "Manual testing" in `CLAUDE.md`: run them headless (`scripts/manual/headless.sh`) by default, and keep screenshots of visual changes for the report. Only compositor behaviour needs real Hyprland. There, check there are no `io.github.DisposableSoftware.JunkDrawer` clients and that the screen isn't locked, ask the user before a test that opens a window and takes focus, run it on an empty workspace, and go back afterwards. If the check can't run, mark the row `partial` and say why.
    - Re-run the manual scripts for the area, since a change often moves something they rely on.
    - Re-read the change against the row, and look for behaviour the spec doesn't mention.
-3. **Update the spec.** Set the row to `done`, or `partial` with the gap written in, and fill in **Verified by**. Remove the item from `roadmap.md`, or move a `partial` gap to its verification backlog.
+   - A row from `/bug` names its regression check in **Verified by**. Run it before the fix and confirm it still fails, then after the fix and confirm it passes. Remove the `#[ignore = "<ID>: fails until fixed"]` attribute from its unit test.3. **Update the spec.** Set the row to `done`, or `partial` with the gap written in, and fill in **Verified by**. Remove the item from `roadmap.md`, or move a `partial` gap to its verification backlog.
 4. **Commit** the code and the status update with a `Spec: ID` trailer listing the requirements it implements or affects. One commit per item, so a later item that fails doesn't hold back the earlier ones.
 
-A verification backlog item usually needs no code: run the check, then update the row and the backlog. If the check fails, the item is a bug: fix it as `/bug` does (find the spec gap, commit the spec delta, then the fix).
+A verification backlog item usually needs no code: run the check, then update the row and the backlog. If the check fails, the item is a bug: leave the backlog entry, set the row to `partial` with what failed, and suggest `/bug` in the report. Don't fix it here, because the spec change for a bug needs the user's approval.
 
 If an item can't be finished (a check fails and the fix isn't clear, or the user isn't available to answer step 2), leave its row as it was, revert its uncommitted changes, note why, and go on to the next item that doesn't depend on it.
 

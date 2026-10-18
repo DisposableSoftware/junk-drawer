@@ -6,7 +6,7 @@ A lightweight, minimal Linux file manager built for Hyprland. Display name **Jun
 
 ## Spec-first workflow (mandatory)
 
-Every change follows these steps, in order. For feature requests, use the `/feature` skill (`.claude/skills/feature/`), which adds a user-approval step between the spec and the code. For bugs, use `/bug` (`.claude/skills/bug/`): it reproduces the bug, finds the spec gap that let it happen, then commits the spec delta and the fix without an approval step, unless the fix changes intended behaviour. To build what is already agreed, use `/implement` (`.claude/skills/implement/`): it works through `spec/roadmap.md`, the verification backlog first and then the `planned` rows in order, with one commit per requirement.
+Every change follows these steps, in order. Three skills run them. `/feature` (`.claude/skills/feature/`) turns a request into spec rows, and `/bug` (`.claude/skills/bug/`) reproduces a bug and finds the spec gap that let it happen. Both end by asking the user to **approve and implement** or **approve the spec only**, and neither writes code itself. `/implement` (`.claude/skills/implement/`) builds what is approved: it works through `spec/roadmap.md`, the verification backlog first and then the listed rows in order, with one commit per requirement.
 
 1. **Spec.** Before touching code, update the relevant `spec/*.md`.
    - **New behaviour or a changed requirement:** add or edit a requirement row. A new row gets the next free ID in its prefix, with status `planned`. If the request is unclear, settle the wording with the user before coding.

@@ -1,15 +1,15 @@
 ---
 name: feature
-description: Turn a feature or change request for Junk Drawer into spec changes, get the user's approval, then implement and verify it against the spec. Use when the user runs /feature, or asks for new behaviour or a change to existing behaviour.
+description: Turn a feature or change request for Junk Drawer into spec changes and get the user's approval, then either implement it through /implement or leave it planned. Use when the user runs /feature, or asks for new behaviour or a change to existing behaviour.
 argument-hint: <what the feature should do>
 disable-model-invocation: true
 ---
 
-# /feature — spec first, approval, then code
+# /feature — spec first, then approval
 
 Request: $ARGUMENTS
 
-Follow the spec-first workflow in `CLAUDE.md`. This skill adds an approval gate between the spec and the code. **Write no code until the user approves the spec change.**
+Follow the spec-first workflow in `CLAUDE.md`. This skill writes the spec change and gets it approved. **It writes no code itself.** The code is built by `/implement` (`.claude/skills/implement/SKILL.md`), right away or later, as the user chooses in step 4.
 
 ## 1. Understand
 
@@ -67,8 +67,8 @@ Show the user:
 
 Then ask with `AskUserQuestion`:
 
-- **Approve and implement** (recommended): commit the spec and build it.
-- **Approve spec only**: commit the spec with the rows left `planned`, and stop.
+- **Approve and implement** (recommended): commit the spec, then build it now through `/implement`.
+- **Approve spec only**: commit the spec with the rows left `planned` in the roadmap for `/implement`, and stop.
 - **Revise**: the user says what to change. Apply it, re-run step 2 on the change, then return to the start of step 4.
 - **Discard**: restore the spec files you changed (`git checkout -- <those files>`, and delete new files you created), then stop.
 
@@ -77,11 +77,5 @@ Never treat silence, or an unrelated message, as approval.
 ## 5. After approval
 
 1. Commit the spec on its own: `spec: <summary>` with the usual trailers.
-2. Implement the requirements. Do only what the approved rows say. If the code needs behaviour the spec doesn't describe, or implementing a row would break another requirement, stop. Handle it as in step 2 (confirm with the user, then update the spec) and get approval for the change before continuing.
-3. Verify (`CLAUDE.md` step 3):
-   - Run `cargo clippy --all-targets -- -D warnings`, `cargo test` (spec conformance included) and `nix build`.
-   - Check each ID as its **Verified by** column says. Add unit tests where possible.
-   - For manual checks, follow "Manual testing" in `CLAUDE.md`: run them headless (`scripts/manual/headless.sh`), and send screenshots of visual changes. Only compositor behaviour needs real Hyprland; there, if the user has Junk Drawer open, skip the check and say so.
-4. Update each row: `done`, or `partial` with the gap written in, and fill in **Verified by**. Update `roadmap.md`.
-5. Commit the code with a `Spec: ID, ID` trailer. Commit the status updates with it, or as a separate `spec:` commit.
-6. Report: the IDs, how each was verified, and anything left `partial` or unverified.
+2. **Approve spec only:** report the IDs now in the roadmap and stop. The user runs `/implement` when they want them built.
+3. **Approve and implement:** read `.claude/skills/implement/SKILL.md` and follow it with these IDs as the limit. Its report is this skill's report.
