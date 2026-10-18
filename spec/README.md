@@ -33,6 +33,8 @@ Each requirement is one line in a table:
 - Write behaviour, not implementation. Keep the "how" short, and put it under **Implementation notes** when it is not obvious or a past attempt failed.
 - **Verified by** names the test, or says `manual` with what to check.
 
+`scripts/release-check.sh` reads the status column: a requirement that became `done` or `partial` since the last release means a minor bump. `/release` pushes `main` and acts on that recommendation.
+
 ## Machine-checked sections
 
 Tables between `<!-- spec:NAME:begin -->` and `<!-- spec:NAME:end -->` markers are parsed by `src/spec_tests.rs`. `cargo test` (and so `nix build`) fails when they disagree with the code or with `data/config.example.ini`. Keep their column layout unchanged.
