@@ -9,7 +9,7 @@ cd "$(dirname "$0")/../.." || exit 1
 . scripts/manual/lib.sh
 require_no_instance
 
-T=$(mktemp -d); trap 'cleanup; kill "${YD:-}" 2>/dev/null; rm -rf "$T"' EXIT
+T=$(mktemp -d); export XDG_STATE_HOME=$T/state; trap 'cleanup; kill "${YD:-}" 2>/dev/null; rm -rf "$T"' EXIT
 D=$T/demo; mkdir -p "$D/folder"; touch "$D/a.txt"
 ydotoold >/dev/null 2>&1 & YD=$!; sleep 1
 launch "$D"

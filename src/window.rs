@@ -934,25 +934,38 @@ fn mouse_nav_action(button: u32) -> Option<&'static str> {
 
 /// A left click on empty space clears the selection, unless Ctrl or Shift is held.
 /// The gesture never claims the press, so rubberband selection still starts.
+///
+/// A press on an item turns rubberband off until the press ends (`OPS-1`): the item's
+/// drag source ignores motion for 100 ms after the press, so the view's rubberband
+/// gesture would claim a quick drag first.
 fn add_background_click(view: &gtk::Widget, selection: &gtk::MultiSelection) {
     let click = gtk::GestureClick::builder()
         .button(gdk::BUTTON_PRIMARY)
         .build();
+    click.set_propagation_phase(gtk::PropagationPhase::Capture);
     click.connect_pressed(glib::clone!(
         #[weak]
         selection,
         move |click, _, x, y| {
-            let held = click.current_event_state();
-            if held.intersects(gdk::ModifierType::CONTROL_MASK | gdk::ModifierType::SHIFT_MASK) {
-                return;
-            }
             let Some(view) = click.widget() else { return };
-            if !is_background(&view, view.pick(x, y, gtk::PickFlags::DEFAULT)) {
+            let on_item = !is_background(&view, view.pick(x, y, gtk::PickFlags::DEFAULT));
+            view.set_property("enable-rubberband", !on_item);
+            let held = click.current_event_state();
+            if on_item
+                || held.intersects(gdk::ModifierType::CONTROL_MASK | gdk::ModifierType::SHIFT_MASK)
+            {
                 return;
             }
             selection.unselect_all();
         }
     ));
+    let restore = |click: &gtk::GestureClick| {
+        if let Some(view) = click.widget() {
+            view.set_property("enable-rubberband", true);
+        }
+    };
+    click.connect_end(move |click, _| restore(click));
+    click.connect_cancel(move |click, _| restore(click));
     view.add_controller(click);
 }
 

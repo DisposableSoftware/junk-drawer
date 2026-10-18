@@ -3,12 +3,16 @@
 # Spec: OPS-1, OPS-13. Run from the repo root after `nix build`, with no Junk Drawer
 # windows open. Presses on each quadrant of a file icon and drags a little. A drag must
 # start, and the drag image (the one near-white shape on screen) must sit where the icon
-# would be had it moved with the pointer. Needs write access to /dev/uinput.
+# would be had it moved with the pointer. The last case drags with no pause after the
+# press: that must start a drag too, not a rubberband. Runs on workspace ${WS:-7} and
+# goes back afterwards. Needs write access to /dev/uinput.
 cd "$(dirname "$0")/../.." || exit 1
 . scripts/manual/lib.sh
 require_no_instance
 
-T=$(mktemp -d); trap 'cleanup; kill "${YD:-}" 2>/dev/null; rm -rf "$T"' EXIT
+PREV=$(hyprctl activeworkspace -j | jq -r .name)
+T=$(mktemp -d); export XDG_STATE_HOME=$T/state; trap 'cleanup; kill "${YD:-}" 2>/dev/null; rm -rf "$T"; hyprctl dispatch "hl.dsp.focus({ workspace = \"$PREV\" })" >/dev/null' EXIT
+hyprctl dispatch "hl.dsp.focus({ workspace = \"${WS:-7}\" })" >/dev/null; sleep 0.5
 D=$T/demo; mkdir -p "$D/folder"; touch "$D/a.txt"
 ydotoold >/dev/null 2>&1 & YD=$!; sleep 1
 launch "$D"
@@ -24,12 +28,12 @@ image_origin() {
 
 # Icon rectangle of a.txt, relative to the window, at the default zoom (96 px).
 X0=362 X1=428 Y0=66 Y1=150
-for q in "TL $((X0+10)) $((Y0+10))" "TR $((X1-10)) $((Y0+10))" "BL $((X0+10)) $((Y1-10))" "BR $((X1-10)) $((Y1-10))" "C $(((X0+X1)/2)) $(((Y0+Y1)/2))"; do
+for q in "TL $((X0+10)) $((Y0+10))" "TR $((X1-10)) $((Y0+10))" "BL $((X0+10)) $((Y1-10))" "BR $((X1-10)) $((Y1-10))" "C $(((X0+X1)/2)) $(((Y0+Y1)/2))" "C-at-once $(((X0+X1)/2)) $(((Y0+Y1)/2)) 0"; do
   set -- $q
   [ "$(active .class)" = "$APP" ] || { echo "lost focus" >&2; exit 3; }
   mv_ $((WX+540)) $((WY+600)); ydotool click 0xC0; sleep 0.4
   mv_ $((WX+$2)) $((WY+$3)); sleep 0.3
-  read -r px py < <(hyprctl cursorpos | tr -d ,); ydotool click 0x40; sleep 0.2
+  read -r px py < <(hyprctl cursorpos | tr -d ,); ydotool click 0x40; sleep ${4:-0.2}
   for i in 1 2 3 4 5 6 7 8 9 10; do ydotool mousemove -x 6 -y 6 >/dev/null; sleep 0.06; done
   sleep 0.4
   read -r cx cy < <(hyprctl cursorpos | tr -d ,)
