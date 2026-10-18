@@ -4,7 +4,7 @@
 
 | ID | Requirement | Status | Verified by |
 |----|-------------|--------|-------------|
-| `OPS-1` | Items can be dragged from either view. Dragging an unselected item selects it, then the whole selection is dragged. Files are offered as `text/uri-list` (`gdk::FileList`) to this app and other apps. | done | manual (tested by hand by the user, 2026-10-17) |
+| `OPS-1` | Items can be dragged from either view. Pressing on an item and moving past the drag threshold starts dragging that item at once, with no hold needed, and never starts a rubberband (`VIEW-5`); a rubberband starts only from empty space. Dragging an unselected item selects it, then the whole selection is dragged. Files are offered as `text/uri-list` (`gdk::FileList`) to this app and other apps. | planned | manual (tested by hand by the user, 2026-10-17); `scripts/manual/drag-hit.sh` `C-at-once` case |
 | `OPS-2` | A drop on a folder item puts the files in that folder. A drop on the view background puts them in the current folder. Files dropped from other apps are accepted. | partial: in the details view only the Name cell of a folder row is a drop target, and drops on its other cells go to the current folder. | manual (tested by hand by the user, 2026-10-17) |
 | `OPS-3` | Drop action: Ctrl forces copy and Shift forces move. Otherwise the files are moved when they are on the same filesystem (`id::filesystem`) and copied when not. If the source doesn't allow the chosen action, copy is used if allowed, else the drop is refused. | done | manual (tested by hand by the user, 2026-10-17) |
 | `OPS-4` | A drop is refused when a folder would go into itself or a descendant, or when it is a move into the folder the files are already in. | done | `ops::tests::moves_and_refuses_self_nesting` |
