@@ -2,7 +2,7 @@
 
 The order of `planned` requirements. Change it here when priorities change.
 
-- `NAV-13`: the file view stops refreshing after a file that vanishes before it is listed (`listing::Listing`).
+Nothing is planned.
 
 ## Verification backlog
 

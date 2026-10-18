@@ -46,6 +46,7 @@ src/cli.rs         --help and --version, before GTK starts                    IN
 src/config.rs      config.ini + keybindings.ini, first-run files, OnceLock    CONF KEY-2
 src/state.rs       remembered view, sort, hidden, sidebar, zoom (state.ini)  CONF-18…20
 src/theme.rs       Catppuccin palette or GTK theme colours, CSS, font hinting LOOK
+src/listing.rs     folder listing kept in step with the disk (monitor)       NAV-13
 src/window.rs      window, State (model + history), win.* actions, views     VIEW NAV
 src/keys.rs        keys::BINDINGS + global/local attachment                  KEY
 src/help.rs        keybinding help overlay (?)                               KEY-8…10

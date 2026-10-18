@@ -8,6 +8,7 @@ mod dnd;
 mod fm1;
 mod help;
 mod keys;
+mod listing;
 mod location;
 mod menu;
 mod openwith;

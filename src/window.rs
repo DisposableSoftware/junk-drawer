@@ -1,6 +1,6 @@
 use crate::{
-    caption, clipboard, config, dialog, dnd, help, keys, location, menu, openwith, ops, properties,
-    rename, sidebar, sort, state, thumbnail, zoom,
+    caption, clipboard, config, dialog, dnd, help, keys, listing, location, menu, openwith, ops,
+    properties, rename, sidebar, sort, state, thumbnail, zoom,
 };
 use gtk::{gdk, gio, glib, pango, prelude::*};
 use std::cell::{Cell, RefCell};
@@ -13,7 +13,7 @@ time::modified,unix::mode";
 /// Per-window model and navigation state. Holds no widgets, so closures can keep it alive
 /// without creating reference cycles through the window.
 struct State {
-    list: gtk::DirectoryList,
+    list: Rc<listing::Listing>,
     filter: gtk::CustomFilter,
     selection: gtk::MultiSelection,
     show_hidden: Rc<Cell<bool>>,
@@ -81,7 +81,7 @@ pub fn open_selecting(
     select: &[gio::File],
     startup_id: Option<&str>,
 ) -> gtk::ApplicationWindow {
-    let list = gtk::DirectoryList::new(Some(ATTRS), Some(dir));
+    let list = listing::Listing::new(ATTRS, Some(dir));
     let show_hidden = Rc::new(Cell::new(state::get().show_hidden()));
     let filter = gtk::CustomFilter::new(glib::clone!(
         #[strong]
@@ -91,7 +91,7 @@ pub fn open_selecting(
             show_hidden.get() || !(info.is_hidden() || info.is_backup())
         }
     ));
-    let filtered = gtk::FilterListModel::new(Some(list.clone()), Some(filter.clone()));
+    let filtered = gtk::FilterListModel::new(Some(list.model()), Some(filter.clone()));
     let sorted = gtk::SortListModel::new(Some(filtered), None::<gtk::Sorter>);
     let selection = gtk::MultiSelection::new(Some(sorted.clone()));
 
