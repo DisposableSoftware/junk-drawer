@@ -39,6 +39,7 @@
 | `cut` | `win.cut` | `<Ctrl>x` |
 | `paste` | `win.paste` | `<Ctrl>v` |
 | `trash` | `win.trash` | `Delete` |
+| `trash-now` | `win.trash-now` | `<Ctrl>Delete` |
 | `delete` | `win.delete` | `<Shift>Delete` |
 | `new-folder` | `win.new-folder` | `<Ctrl><Shift>n` |
 | `open-with` | `win.open-with` | |
