@@ -1,6 +1,6 @@
 #! /usr/bin/env nix-shell
 #! nix-shell -i bash -p wtype jq grim wlrctl
-# Spec: OPS-31, OPS-34, OPS-35, OPS-36, LOOK-10. Run from the repo root after
+# Spec: OPS-30, OPS-31, OPS-37, OPS-34, OPS-35, OPS-36, LOOK-10. Run from the repo root after
 # `nix build`, with no Junk Drawer windows open. Screenshots go to $OUT: check the menus,
 # the Properties and Open With windows, and the delete confirmation in them.
 cd "$(dirname "$0")/../.." || exit 1
@@ -44,6 +44,18 @@ shot "$OUT/3-delete-confirm.png"
 keys -k Escape;                             check "Escape cancels delete"         "yes" "$(exists "$D/b.txt")"
 keys -M shift -k Delete -m shift; keys -k Tab -k Return; sleep 0.5
 check "Delete deletes" "no" "$(exists "$D/b.txt")"
+
+# OPS-30, OPS-37: Delete asks before trashing; Ctrl+Delete doesn't. Items are Dir, a.txt.
+echo t1 > "$D/t1.txt"; echo t2 > "$D/t2.txt"; sleep 0.5
+keys -k Home -k End
+keys -k Delete
+shot "$OUT/3b-trash-confirm.png"
+keys -k Escape;                             check "Escape cancels trash"          "yes" "$(exists "$D/t2.txt")"
+keys -k Delete; keys -k Tab -k Return; sleep 0.5
+check "Delete then Move to Trash trashes" "no" "$(exists "$D/t2.txt")"
+keys -k End -M ctrl -k Delete -m ctrl; sleep 0.5
+check "Ctrl+Delete trashes without asking" "no" "$(exists "$D/t1.txt")"
+check "trashed files are in the XDG trash" "yes" "$(exists "$XDG_DATA_HOME/Trash/files/t1.txt")"
 
 # OPS-36: Properties of a.txt, then of the folder with nothing selected.
 keys -k Home -k Right -k Right -M ctrl i -m ctrl; check "properties opens"              "Properties" "$(title)"

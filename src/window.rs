@@ -488,18 +488,8 @@ fn add_actions(window: &gtk::ApplicationWindow, state: &Rc<State>, stack: &gtk::
                 rename::prompt(win, file.clone());
             }
         }),
-        simple("trash", |win, s| {
-            let files = dnd::selected_files(&s.selection);
-            if files.is_empty() {
-                return;
-            }
-            if s.dir().is_some_and(|d| dnd::is_recent(&d)) {
-                // Deleting a Recent entry only drops it from the list (`INT-12`).
-                ops::forget(Some(win.clone().upcast()), files);
-            } else {
-                ops::trash(Some(win.clone().upcast()), files);
-            }
-        }),
+        simple("trash", |win, s| trash_selection(win, s, true)),
+        simple("trash-now", |win, s| trash_selection(win, s, false)),
         simple("delete", |win, s| {
             let files = dnd::selected_files(&s.selection);
             if files.is_empty() {
@@ -566,6 +556,46 @@ fn ask_new_folder(window: &gtk::ApplicationWindow, state: &Rc<State>) {
             });
         },
     );
+}
+
+/// `trash` asks first (`OPS-30`); `trash-now` doesn't (`OPS-37`). Recent entries are only
+/// dropped from the list (`INT-12`), so nothing is asked there.
+fn trash_selection(win: &gtk::ApplicationWindow, s: &State, ask: bool) {
+    let files = dnd::selected_files(&s.selection);
+    if files.is_empty() {
+        return;
+    }
+    if s.dir().is_some_and(|d| dnd::is_recent(&d)) {
+        ops::forget(Some(win.clone().upcast()), files);
+    } else if ask {
+        confirm_trash(win, files);
+    } else {
+        ops::trash(Some(win.clone().upcast()), files);
+    }
+}
+
+fn confirm_trash(window: &gtk::ApplicationWindow, files: Vec<gio::File>) {
+    let message = match files.as_slice() {
+        [file] => format!(
+            "Move “{}” to the trash?",
+            file.basename()
+                .map(|n| n.to_string_lossy().into_owned())
+                .unwrap_or_default()
+        ),
+        _ => format!("Move {} items to the trash?", files.len()),
+    };
+    let alert = gtk::AlertDialog::builder()
+        .message(message)
+        .buttons(["Cancel", "Move to Trash"])
+        .cancel_button(0)
+        .default_button(0)
+        .build();
+    let parent = window.clone();
+    glib::spawn_future_local(async move {
+        if alert.choose_future(Some(&parent)).await == Ok(1) {
+            ops::trash(Some(parent.upcast()), files);
+        }
+    });
 }
 
 fn confirm_delete(window: &gtk::ApplicationWindow, files: Vec<gio::File>) {

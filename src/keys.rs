@@ -53,6 +53,12 @@ pub const BINDINGS: &[Binding] = &[
     ("paste", "win.paste", "Paste", &["<Ctrl>v"]),
     ("trash", "win.trash", "Move to trash", &["Delete"]),
     (
+        "trash-now",
+        "win.trash-now",
+        "Move to trash without asking",
+        &["<Ctrl>Delete"],
+    ),
+    (
         "delete",
         "win.delete",
         "Delete permanently",

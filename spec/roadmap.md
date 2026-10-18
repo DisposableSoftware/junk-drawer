@@ -2,7 +2,7 @@
 
 The order of `planned` requirements. Change it here when priorities change.
 
-1. `OPS-30`, `OPS-37`: confirm before trashing; `trash-now` (Ctrl+Delete) skips the confirmation.
+Nothing is planned.
 
 ## Verification backlog
 
