@@ -1,6 +1,6 @@
 # Roadmap
 
-The order of `planned` requirements. Change it here when priorities change. `/implement` works through this file: the verification backlog first, then the planned requirements in the order listed.
+The order of approved work: `planned` requirements, and `partial` ones with a known bug from `/bug`. Change it here when priorities change. `/implement` works through this file: the verification backlog first, then the requirements in the order listed.
 
 Nothing is planned.
 
