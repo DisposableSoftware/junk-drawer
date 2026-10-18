@@ -14,7 +14,7 @@ This folder is the source of truth for what Junk Drawer does. The code implement
 | [appearance.md](appearance.md) | `LOOK` | Catppuccin theming, transparency, CSS layering |
 | [configuration.md](configuration.md) | `CONF` | `config.ini` and `style.css` |
 | [integration.md](integration.md) | `INT` | XDG/freedesktop specs, desktop entry, NixOS |
-| [roadmap.md](roadmap.md) | — | The order of planned work |
+| [roadmap.md](roadmap.md) | — | The order of planned work, which `/implement` follows |
 
 ## Requirement format
 
