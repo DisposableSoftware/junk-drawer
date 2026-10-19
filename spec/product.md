@@ -17,6 +17,11 @@ A lightweight, minimal Linux file manager for Hyprland. Display name **Junk Draw
 | `PROD-9` | Easy NixOS integration. | done (see `INT-20`…`INT-24`) |
 | `PROD-10` | Two views: an icon grid like Nautilus and a details view with columns. | done (see [views.md](views.md)) |
 | `PROD-11` | Basic keybindings, which users can change in `~/.config/junk-drawer/`. | done (see [keybindings.md](keybindings.md)) |
+| `PROD-12` | Follow the [DisposableSoftware style guide](https://github.com/DisposableSoftware/style-guide) for the shared look, feel and copy, except where this spec says otherwise. Known gaps are `LOOK-21` and `LOOK-22`. | partial (ongoing constraint) |
+
+## Style guide
+
+The [DisposableSoftware style guide](https://github.com/DisposableSoftware/style-guide) describes the look the apps share: palette, CSS values, layout, keybindings, copy and README shape. Junk Drawer is the source of most of its values. This spec wins where the two disagree, and a change to Junk Drawer's look means telling the user which guide pages and reference copies need the same change. The Catppuccin palette belongs to the Catppuccin community (https://catppuccin.com), not to this project.
 
 ## Non-goals
 

@@ -1,5 +1,7 @@
 # Appearance
 
+The shared look of the DisposableSoftware apps is written down in the [style guide](https://github.com/DisposableSoftware/style-guide) (see `PROD-12`). The rules below win over it.
+
 ## Requirements
 
 | ID | Requirement | Status | Verified by |
@@ -24,6 +26,8 @@
 | `LOOK-18` | A symbolic variant of the icon, `io.github.DisposableSoftware.JunkDrawer-symbolic` (an SVG in `hicolor/symbolic/apps`), draws the same drawer silhouette in one colour (`#2e3436`, recoloured by GTK) for panels and other symbolic contexts. | done | manual (renders at 16 and 32px, and recoloured on a dark background, approved by the user) |
 | `LOOK-19` | Display scale: every size in the spec and in the app's CSS is in logical px, so at scales 1, 1.25, 1.5 and 2 the window has the same layout in logical px (sidebar width and padding, grid cells, row heights, path bar), and icons, thumbnails and text are drawn at the display's full resolution, never upscaled. | done | `scripts/manual/scales.sh` (headless at each scale: screenshots of both views; sidebar width, first grid cell centre and label top in logical px are within 1.5px of scale 2) |
 | `LOOK-20` | Sharp text at scale 1: when every monitor has scale 1, text lines and glyphs are placed on whole pixels (hinted font metrics), so a 1px horizontal stroke, such as the top of `F`, `E` or `7`, is drawn as one solid row rather than two faint ones. At other scales GTK's default font rendering is kept. The choice is made again when a monitor is added or removed or changes scale. | done | `theme::tests::hints_metrics_only_when_every_monitor_is_scale_1`, `scripts/manual/scales.sh` (at scale 1 the top bar of the `F` in the sidebar's File System and the grid's Folder label went from 0.29 to 1.00 of full brightness; also after changing the output from scale 2 to 1 while running); the default at other scales by code review |
+| `LOOK-21` | Error messages follow the style guide's copy rule (`interaction.md`, Copy): `Could not <verb> “<name>”`, with typographic curly quotes around the name and the system's text in the detail. Today the Open With failure reads `Could not open with <app>` with no quotes. | planned | manual (trigger each error dialog and read it), code review of the `Could not` strings |
+| `LOOK-22` | The scrollbars of the icon view, the details view and the other scrolled areas match the style guide's scrollbar rule (`components.md`, Scrollbars): overlay scrollbars whose slider stays `min-width: 4px` and trough `min-width: 6px` in every state, with a 2px slider radius, like the sidebar's (`LOOK-12`). Today only the sidebar's scrollbar is styled. | planned | manual (screenshot of each view with the pointer over the scrollbar) |
 
 ## Implementation notes
 
