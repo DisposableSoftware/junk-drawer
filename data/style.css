@@ -329,5 +329,4 @@ window.junk .path-bar spinner.loading {
   color: @overlay1;
   min-width: 16px;
   min-height: 16px;
-  margin-left: 8px;
 }

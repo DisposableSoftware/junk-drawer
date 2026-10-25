@@ -146,6 +146,7 @@ pub fn open_selecting(
     let path = gtk::Label::builder()
         .css_classes(["path"])
         .xalign(0.0)
+        .hexpand(true)
         .ellipsize(pango::EllipsizeMode::Start)
         .focusable(false)
         .can_target(false)

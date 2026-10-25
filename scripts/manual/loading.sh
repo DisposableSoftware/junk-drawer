@@ -3,7 +3,7 @@
 # Spec: VIEW-38, LOOK-23. Run from the repo root after `nix build`, headless:
 # ./scripts/manual/headless.sh ./scripts/manual/loading.sh
 # A folder of many files loads slowly enough to show the throbber; screenshots go to $OUT.
-# Look at them: spinner right of the path while loading, none in a small folder or afterwards.
+# Look at them: spinner at the right end of the path bar while loading, none in a small folder or afterwards.
 cd "$(dirname "$0")/../.." || exit 1
 . scripts/manual/lib.sh
 require_no_instance
