@@ -3,18 +3,25 @@
 # Spec: VIEW-38, LOOK-23. Run from the repo root after `nix build`, headless:
 # ./scripts/manual/headless.sh ./scripts/manual/loading.sh
 # A folder of many files loads slowly enough to show the throbber; screenshots go to $OUT.
-# Look at them: spinner at the right end of the path bar while loading, none in a small folder or afterwards.
+# Look at them: spinner at the right end of the path bar while loading, none in a small folder or afterwards, and a gap of at least 18px between a long ellipsized path and the spinner (4-long-*.png).
 cd "$(dirname "$0")/../.." || exit 1
 . scripts/manual/lib.sh
 require_no_instance
 
 T=$(mktemp -d); OUT=${OUT:-$T/shots}; mkdir -p "$OUT"
-trap 'cleanup; rm -rf "$T/small" "$T/big"' EXIT
+trap 'cleanup; rm -rf "$T/small" "$T/big" "$T/long"' EXIT
 mkdir -p "$T/small/a" "$T/big"
+LONG=$T/long; for i in 1 2 3 4 5 6 7 8; do LONG=$LONG/a-rather-long-folder-name-number-$i; done
+mkdir -p "$LONG"
+(cd "$LONG" && seq 1 ${JD_FILES:-200000} | xargs touch)
 (cd "$T/big" && seq 1 ${JD_FILES:-200000} | xargs touch)
 
 launch "$T/small"
 shot "$OUT/1-small.png"
+cleanup; sleep 0.5
+
+launch "$LONG"
+for i in 1 2 3; do shot "$OUT/4-long-$i.png"; done
 cleanup; sleep 0.5
 
 launch "$T/big"
