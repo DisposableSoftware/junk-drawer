@@ -6,6 +6,8 @@ use gtk::{gdk, gio, glib, pango, prelude::*};
 use std::cell::{Cell, RefCell};
 use std::rc::Rc;
 
+const THROBBER_DELAY: std::time::Duration = std::time::Duration::from_millis(200);
+
 const ATTRS: &str = "standard::name,standard::display-name,standard::icon,standard::type,\
 standard::size,standard::content-type,standard::is-hidden,standard::is-backup,standard::target-uri,\
 time::modified,unix::mode";
@@ -144,10 +146,16 @@ pub fn open_selecting(
     let path = gtk::Label::builder()
         .css_classes(["path"])
         .xalign(0.0)
-        .hexpand(true)
         .ellipsize(pango::EllipsizeMode::Start)
         .focusable(false)
         .can_target(false)
+        .build();
+    let spinner = gtk::Spinner::builder()
+        .css_classes(["loading"])
+        .visible(false)
+        .focusable(false)
+        .can_target(false)
+        .valign(gtk::Align::Center)
         .build();
     let up = gtk::Button::builder()
         .icon_name("go-up-symbolic")
@@ -176,6 +184,7 @@ pub fn open_selecting(
     });
     bar.append(&up);
     bar.append(&path);
+    bar.append(&spinner);
     content.append(&bar);
     let views = gtk::Overlay::builder()
         .child(&stack)
@@ -278,6 +287,7 @@ pub fn open_selecting(
             reveal();
         }
     });
+    attach_throbber(&state.list, &spinner);
 
     let on_activate = glib::clone!(
         #[strong]
@@ -999,6 +1009,34 @@ fn add_mouse_nav(window: &gtk::ApplicationWindow) {
         }
     });
     window.add_controller(click);
+}
+
+/// Shows `spinner` once loading has lasted `THROBBER_DELAY`, so quick folders don't flash it.
+fn attach_throbber(list: &listing::Listing, spinner: &gtk::Spinner) {
+    let timer: Rc<RefCell<Option<glib::SourceId>>> = Rc::default();
+    let update = glib::clone!(
+        #[weak]
+        spinner,
+        move |list: &listing::Listing| {
+            if let Some(id) = timer.borrow_mut().take() {
+                id.remove();
+            }
+            if list.is_loading() {
+                let slot = timer.clone();
+                let id = glib::timeout_add_local_once(THROBBER_DELAY, move || {
+                    slot.borrow_mut().take();
+                    spinner.set_visible(true);
+                    spinner.set_spinning(true);
+                });
+                *timer.borrow_mut() = Some(id);
+            } else {
+                spinner.set_spinning(false);
+                spinner.set_visible(false);
+            }
+        }
+    );
+    update(list);
+    list.connect_loading_notify(update);
 }
 
 #[cfg(test)]

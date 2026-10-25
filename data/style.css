@@ -324,3 +324,10 @@ window.junk.conflict button.suggested-action:hover {
 window.junk button:focus-visible {
   outline-color: alpha(@accent, 0.7);
 }
+
+window.junk .path-bar spinner.loading {
+  color: @overlay1;
+  min-width: 16px;
+  min-height: 16px;
+  margin-left: 8px;
+}
