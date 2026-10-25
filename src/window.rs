@@ -216,6 +216,7 @@ pub fn open_selecting(
     zoom::attach(&window, &stack, &icons, &name_column, sizes);
     sort::attach(&window, &details);
     keys::attach_local(&window);
+    attach_jump_to_letter(&window, &state);
     add_mouse_nav(&window);
     sidebar::attach(
         &window,
@@ -1040,6 +1041,65 @@ fn attach_throbber(list: &listing::Listing, spinner: &gtk::Spinner) {
     list.connect_loading_notify(update);
 }
 
+/// The index of the first name that starts with `ch`, ignoring case (`NAV-31`).
+fn first_with_initial<'a>(names: impl Iterator<Item = &'a str>, ch: char) -> Option<usize> {
+    let want = ch.to_lowercase().next()?;
+    names
+        .enumerate()
+        .find(|(_, n)| n.chars().next().and_then(|c| c.to_lowercase().next()) == Some(want))
+        .map(|(i, _)| i)
+}
+
+/// Letter and digit keys that no binding took select the first item starting with them,
+/// while the view is sorted by name (`NAV-31`).
+fn attach_jump_to_letter(window: &gtk::ApplicationWindow, state: &Rc<State>) {
+    let keys = gtk::EventControllerKey::new();
+    keys.connect_key_pressed(glib::clone!(
+        #[strong]
+        state,
+        #[weak]
+        window,
+        #[upgrade_or]
+        glib::Propagation::Proceed,
+        move |_, key, _, mods| {
+            let blocked = gdk::ModifierType::CONTROL_MASK
+                | gdk::ModifierType::ALT_MASK
+                | gdk::ModifierType::SUPER_MASK
+                | gdk::ModifierType::META_MASK;
+            let Some(ch) = key.to_unicode().filter(|c| c.is_alphanumeric()) else {
+                return glib::Propagation::Proceed;
+            };
+            let by_name = window
+                .lookup_action("sort-by")
+                .and_then(|a| a.state())
+                .and_then(|s| s.get::<String>())
+                .is_some_and(|s| s == "name");
+            let typing =
+                gtk::prelude::GtkWindowExt::focus(&window).is_some_and(|f| f.is::<gtk::Editable>());
+            if mods.intersects(blocked) || !by_name || typing {
+                return glib::Propagation::Proceed;
+            }
+            let names: Vec<String> = (0..state.selection.n_items())
+                .map(|i| {
+                    state
+                        .selection
+                        .item(i)
+                        .and_downcast::<gio::FileInfo>()
+                        .map(|info| info.display_name().to_string())
+                        .unwrap_or_default()
+                })
+                .collect();
+            let Some(pos) = first_with_initial(names.iter().map(String::as_str), ch) else {
+                return glib::Propagation::Proceed;
+            };
+            state.selection.select_item(pos as u32, true);
+            focus_item(&window, pos as u32);
+            glib::Propagation::Stop
+        }
+    ));
+    window.add_controller(keys);
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -1053,5 +1113,17 @@ mod tests {
         for other in [1, 2, 3, 12] {
             assert_eq!(mouse_nav_action(other), None);
         }
+    }
+
+    #[test]
+    fn jump_finds_the_first_initial() {
+        let names = ["Alpha", "bravo", "Bravo2", "10 files", "\u{e9}clair"];
+        let find = |c| first_with_initial(names.iter().copied(), c);
+        assert_eq!(find('a'), Some(0));
+        assert_eq!(find('B'), Some(1));
+        assert_eq!(find('1'), Some(3));
+        assert_eq!(find('\u{c9}'), Some(4));
+        assert_eq!(find('z'), None);
+        assert_eq!(first_with_initial([].into_iter(), 'a'), None);
     }
 }

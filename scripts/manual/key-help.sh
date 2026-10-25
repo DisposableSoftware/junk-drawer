@@ -16,12 +16,12 @@ title() { active .title; }
 launch "$D/Alpha"
 keys '?'
 shot "$OUT/1-help.png"
-keys q;                                 check "q dismisses without closing"     "1" "$(win_count)"
+keys x;                                 check "a key dismisses without acting" "1" "$(win_count)"
 shot "$OUT/2-dismissed.png"
 keys -k BackSpace;                      check "focus is back on the view"       "$D" "$(title)"
 
-keys '?' -k Shift_L -k Control_L q;     check "modifiers alone don't dismiss"   "1" "$(win_count)"
-keys '?' -M ctrl q -m ctrl; sleep 0.3;  check "Ctrl+Q is swallowed"            "1" "$(win_count)"
+keys '?' -k Shift_L -k Control_L x;     check "modifiers alone don't dismiss"   "1" "$(win_count)"
+keys '?' -M ctrl w -m ctrl; sleep 0.3;  check "Ctrl+W is swallowed"            "1" "$(win_count)"
 
 # wlrctl moves the pointer relatively; only click if it really lands inside Junk Drawer.
 keys '?'
@@ -32,7 +32,7 @@ read -r PX PY < <(hyprctl cursorpos -j | jq -r '"\(.x) \(.y)"')
 if [ "$PX" -gt "$X" ] && [ "$PX" -lt $((X + W)) ] && [ "$PY" -gt "$Y" ] && [ "$PY" -lt $((Y + H)) ] \
   && [ "$(active .class)" = "$APP" ]; then
   wlrctl pointer click left; sleep 0.5
-  keys q; sleep 0.3;                    check "click dismisses (then q closes)" "0" "$(win_count)"
+  keys -M ctrl w -m ctrl; sleep 0.3;      check "click dismisses (then Ctrl+W closes)" "0" "$(win_count)"
 else
   echo "SKIP  click dismisses (pointer not over Junk Drawer)"
 fi

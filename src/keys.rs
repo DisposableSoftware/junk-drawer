@@ -14,12 +14,7 @@ pub type Binding = (
 /// config name is the key in the `[keybindings]` group of keybindings.ini.
 pub const BINDINGS: &[Binding] = &[
     ("new-window", "win.new-window", "New window", &["<Ctrl>n"]),
-    (
-        "close-window",
-        "window.close",
-        "Close window",
-        &["<Ctrl>w", "q"],
-    ),
+    ("close-window", "window.close", "Close window", &["<Ctrl>w"]),
     ("quit", "app.quit", "Quit", &["<Ctrl>q"]),
     ("open", "win.open", "Open", &["Return", "KP_Enter", "space"]),
     ("rename", "win.rename", "Rename", &["F2"]),
@@ -204,7 +199,7 @@ fn rows_for(resolved: &[(&'static Binding, Vec<String>)]) -> Vec<(&'static str, 
         .collect()
 }
 
-/// Keys without Ctrl/Alt/Super (q, space, Delete, F2…) would also fire while typing
+/// Keys without Ctrl/Alt/Super (space, Delete, F2…) would also fire while typing
 /// in an entry, so they are bound only on the file views instead of app-wide.
 fn is_global(accel: &str) -> bool {
     let global = gdk::ModifierType::CONTROL_MASK

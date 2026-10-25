@@ -19,9 +19,9 @@ keys -k BackSpace;                      check "BackSpace from empty folder"     
 keys -M alt -k Left -m alt;             check "Alt+Left goes back"                 "$D/Beta" "$(title)"
 keys -M alt -k Right -m alt;            check "Alt+Right goes forward"             "$D" "$(title)"
 keys -k Down -k Down -k Down -k F2;     check "F2 opens rename"                    "Rename" "$(title)"
-keys -k BackSpace q;                    check "q/BackSpace typed in rename box"    "Rename" "$(title)"
+keys -k BackSpace x;                    check "x/BackSpace typed in rename box"    "Rename" "$(title)"
 keys -k Escape;                         check "Escape closes rename"               "$D" "$(title)"
 check "rename was cancelled" "yes" "$([ -e "$D/notes.txt" ] && echo yes || echo no)"
-keys q; sleep 0.3;                      check "q closes window"                    "0" "$(win_count)"
+keys -M ctrl w -m ctrl; sleep 0.3;        check "Ctrl+W closes window"                  "0" "$(win_count)"
 
 echo; [ "$FAILS" = 0 ] && echo "all checks passed" || { echo "$FAILS check(s) failed"; exit 1; }
