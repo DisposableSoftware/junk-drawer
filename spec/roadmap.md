@@ -4,6 +4,7 @@ The order of approved work: `planned` requirements, and `partial` ones with a kn
 
 1. `LOOK-21`: error messages as `Could not <verb> “<name>”` (the Open With failure has no quotes).
 2. `LOOK-22`: scrollbars of the file views and other scrolled areas styled like the sidebar's, per the style guide.
+3. `NAV-31`: jump to the first item starting with a typed letter when sorted by name; `close-window` loses its `q` default (`KEY` table; also `KEY-9`'s check in `key-help.sh` uses `q`).
 
 Keep the guide's copies of values in sync when this app's look changes (see `PROD-12`).
 

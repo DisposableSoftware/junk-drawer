@@ -21,7 +21,7 @@
 | Name | Action | Default keys |
 |------|--------|--------------|
 | `new-window` | `win.new-window` | `<Ctrl>n` |
-| `close-window` | `window.close` | `<Ctrl>w`, `q` |
+| `close-window` | `window.close` | `<Ctrl>w` |
 | `quit` | `app.quit` | `<Ctrl>q` |
 | `open` | `win.open` | `Return`, `KP_Enter`, `space` |
 | `rename` | `win.rename` | `F2` |
