@@ -65,7 +65,7 @@ Show the user:
 - Other trade-offs you noticed.
 - How each requirement will be verified.
 
-Then ask with `AskUserQuestion`:
+Then ask with `AskUserQuestion`. Put the spec diff (`git diff -- spec/`, every added and changed row in full) in the `preview` field of the approve options, so it is on screen beside the choice and not only above it in the scrollback. Options:
 
 - **Approve and implement** (recommended): commit the spec, then build it now through `/implement`.
 - **Approve spec only**: commit the spec with the rows left `planned` in the roadmap for `/implement`, and stop.
@@ -79,3 +79,11 @@ Never treat silence, or an unrelated message, as approval.
 1. Commit the spec on its own: `spec: <summary>` with the usual trailers.
 2. **Approve spec only:** report the IDs now in the roadmap and stop. The user runs `/implement` when they want them built.
 3. **Approve and implement:** read `.claude/skills/implement/SKILL.md` and follow it with these IDs as the limit. Its report is this skill's report.
+
+## 6. Offer a test build
+
+When the feature is built (after **Approve and implement**), ask with `AskUserQuestion` whether to launch a test build for manual validation. Don't ask after **Approve spec only**, because nothing is built. On yes:
+
+1. Check `hyprctl clients -j` for `io.github.DisposableSoftware.JunkDrawer` clients. The app is single-instance, so if one is open, tell the user and don't launch.
+2. `nix build`, then start `./result/bin/junk` detached (`setsid`) on the user's session, and report its pid from `hyprctl clients -j`.
+3. Tell the user what to try, from the **Verified by** rows that were only checked headless or not at all. Never kill the window: the user closes it.
