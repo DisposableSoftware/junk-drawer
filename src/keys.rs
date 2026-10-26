@@ -104,6 +104,12 @@ pub const BINDINGS: &[Binding] = &[
         &["F9"],
     ),
     (
+        "toggle-status-bar",
+        "win.toggle-status-bar",
+        "Toggle status bar",
+        &["F10"],
+    ),
+    (
         "add-bookmark",
         "win.add-bookmark",
         "Bookmark this folder",

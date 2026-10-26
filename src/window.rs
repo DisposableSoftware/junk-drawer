@@ -1,6 +1,6 @@
 use crate::{
     caption, clipboard, config, dialog, dnd, help, keys, listing, location, menu, openwith, ops,
-    properties, rename, sidebar, sort, state, thumbnail, zoom,
+    properties, rename, sidebar, sort, state, status_bar, thumbnail, zoom,
 };
 use gtk::{gdk, gio, glib, pango, prelude::*};
 use std::cell::{Cell, RefCell};
@@ -194,6 +194,7 @@ pub fn open_selecting(
         .hexpand(true)
         .build();
     content.append(&views);
+    status_bar::attach(&window, &content, selection.upcast_ref());
     let body = gtk::Box::new(gtk::Orientation::Horizontal, 0);
     body.append(&content);
     window.set_child(Some(&body));
@@ -315,8 +316,15 @@ pub fn open_selecting(
 fn visible_view(window: &gtk::ApplicationWindow) -> Option<gtk::Widget> {
     window
         .child()
-        .and_then(|c| c.last_child())
         .and_then(|body| body.last_child())
+        .and_then(|content| content.last_child())
+        .and_then(|last| {
+            if last.is::<gtk::Overlay>() {
+                Some(last)
+            } else {
+                last.prev_sibling()
+            }
+        })
         .and_downcast::<gtk::Overlay>()
         .and_then(|o| o.child())
         .and_downcast::<gtk::Stack>()

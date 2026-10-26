@@ -303,6 +303,11 @@ Toggle sidebar.
 .br
 Keys: \fBF9\fR
 .TP
+.B toggle\-status\-bar
+Toggle status bar.
+.br
+Keys: \fBF10\fR
+.TP
 .B add\-bookmark
 Bookmark this folder.
 .br
@@ -459,6 +464,12 @@ Whether windows start with the sidebar shown.
 .br
 Default: \fBtrue\fR
 .TP
+.B show\-status\-bar
+Whether windows start with the status bar shown: the number of items in the
+folder and the total size of its files.
+.br
+Default: \fBfalse\fR
+.TP
 .B show\-thumbnails
 Whether to show thumbnails in place of icons (see
 .BR THUMBNAILS ).
@@ -466,7 +477,7 @@ Whether to show thumbnails in place of icons (see
 Default: \fBtrue\fR
 .TP
 .B remember
-Whether to remember the view, sort, hidden files, sidebar and zoom between
+Whether to remember the view, sort, hidden files, sidebar, status bar and zoom between
 sessions, in
 .IR $XDG_STATE_HOME/junk\-drawer/state.ini .
 With \fBfalse\fR that file is neither read nor written, and every window starts

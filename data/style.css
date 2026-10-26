@@ -143,6 +143,11 @@ window.junk .path-bar button.up:disabled {
   color: alpha(@overlay1, 0.4);
 }
 
+window.junk label.status-bar {
+  color: @overlay1;
+  padding: 0 18px 8px 18px;
+}
+
 window.junk .caption {
   color: @overlay1;
 }

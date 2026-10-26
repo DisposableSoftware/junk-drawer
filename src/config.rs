@@ -21,6 +21,7 @@ pub struct Config {
     pub show_hidden: bool,
     pub show_path: bool,
     pub show_sidebar: bool,
+    pub show_status_bar: bool,
     pub show_thumbnails: bool,
     /// `false` turns off `state.ini` (`CONF-22`).
     pub remember: bool,
@@ -44,6 +45,7 @@ impl Default for Config {
             show_hidden: false,
             show_path: true,
             show_sidebar: true,
+            show_status_bar: false,
             show_thumbnails: true,
             remember: true,
             grid_caption: "size".into(),
@@ -110,6 +112,9 @@ impl Config {
         }
         if let Ok(v) = kf.boolean("view", "show-sidebar") {
             cfg.show_sidebar = v;
+        }
+        if let Ok(v) = kf.boolean("view", "show-status-bar") {
+            cfg.show_status_bar = v;
         }
         if let Ok(v) = kf.boolean("view", "show-thumbnails") {
             cfg.show_thumbnails = v;
@@ -227,7 +232,7 @@ mod tests {
         std::fs::create_dir_all(&dir).unwrap();
         std::fs::write(
             dir.join("config.ini"),
-            "[view]\nshow-hidden=true\nshow-path=false\nshow-sidebar=false\nshow-thumbnails=false\nremember=false\ngrid-caption=permissions\n[keybindings]\ncopy=<Ctrl>k\n",
+            "[view]\nshow-hidden=true\nshow-path=false\nshow-sidebar=false\nshow-status-bar=true\nshow-thumbnails=false\nremember=false\ngrid-caption=permissions\n[keybindings]\ncopy=<Ctrl>k\n",
         )
         .unwrap();
         std::fs::write(
@@ -239,6 +244,7 @@ mod tests {
         assert!(cfg.show_hidden);
         assert!(!cfg.show_path);
         assert!(!cfg.show_sidebar);
+        assert!(cfg.show_status_bar);
         assert!(!cfg.show_thumbnails);
         assert!(!cfg.remember);
         assert_eq!(cfg.grid_caption, "permissions");

@@ -21,6 +21,7 @@ mod sort;
 #[cfg(test)]
 mod spec_tests;
 mod state;
+mod status_bar;
 mod theme;
 mod thumbnail;
 mod window;

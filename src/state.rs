@@ -19,6 +19,7 @@ pub struct Saved {
     pub sort_reversed: Option<bool>,
     pub show_hidden: Option<bool>,
     pub show_sidebar: Option<bool>,
+    pub show_status_bar: Option<bool>,
     pub icon_size: Option<i32>,
     pub list_icon_size: Option<i32>,
 }
@@ -63,6 +64,7 @@ impl Saved {
         s.sort_reversed = flag("sort-reversed");
         s.show_hidden = flag("show-hidden");
         s.show_sidebar = flag("show-sidebar");
+        s.show_status_bar = flag("show-status-bar");
         s.icon_size = kf
             .integer("view", "icon-size")
             .ok()
@@ -94,6 +96,9 @@ impl Saved {
         if let Some(v) = self.show_sidebar {
             kf.set_boolean("view", "show-sidebar", v);
         }
+        if let Some(v) = self.show_status_bar {
+            kf.set_boolean("view", "show-status-bar", v);
+        }
         if let Some(v) = self.icon_size {
             kf.set_integer("view", "icon-size", v);
         }
@@ -114,6 +119,10 @@ impl Saved {
     }
     pub fn show_sidebar(&self) -> bool {
         self.show_sidebar.unwrap_or(config::get().show_sidebar)
+    }
+    pub fn show_status_bar(&self) -> bool {
+        self.show_status_bar
+            .unwrap_or(config::get().show_status_bar)
     }
     pub fn icon_size(&self) -> i32 {
         self.icon_size.unwrap_or(config::get().icon_size)
@@ -282,6 +291,7 @@ mod tests {
             sort_reversed: Some(true),
             show_hidden: Some(true),
             show_sidebar: Some(false),
+            show_status_bar: Some(true),
             icon_size: Some(168),
             list_icon_size: Some(64),
         };
@@ -327,6 +337,7 @@ mod tests {
             view: Some("details".into()),
             show_hidden: Some(!cfg.show_hidden),
             show_sidebar: Some(!cfg.show_sidebar),
+            show_status_bar: Some(!cfg.show_status_bar),
             icon_size: Some(48),
             list_icon_size: Some(16),
             sort_column: Some("type".into()),
@@ -335,6 +346,7 @@ mod tests {
         assert_eq!(some.view(), "details");
         assert_eq!(some.show_hidden(), !cfg.show_hidden);
         assert_eq!(some.show_sidebar(), !cfg.show_sidebar);
+        assert_eq!(some.show_status_bar(), !cfg.show_status_bar);
         assert_eq!((some.icon_size(), some.list_icon_size()), (48, 16));
         assert_eq!(some.sort(), ("type".to_string(), true));
     }
