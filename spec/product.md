@@ -25,7 +25,7 @@ The [DisposableSoftware style guide](https://github.com/DisposableSoftware/style
 
 ## Non-goals
 
-- No status bar or heavy chrome. The user runs Hyprland barless.
+- No heavy chrome. The user runs Hyprland barless, so the only bar below the file view is the optional status bar (`VIEW-39`), hidden by default.
 - No libadwaita. It fights custom theming and transparency.
 - No plugin system, embedded terminal or built-in previewer.
 

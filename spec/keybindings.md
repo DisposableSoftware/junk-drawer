@@ -50,6 +50,7 @@
 | `zoom-reset` | `win.zoom-reset` | `<Ctrl>0`, `<Ctrl>KP_0` |
 | `location` | `win.location` | `<Ctrl>l` |
 | `toggle-sidebar` | `win.toggle-sidebar` | `F9` |
+| `toggle-status-bar` | `win.toggle-status-bar` | `F10` |
 | `add-bookmark` | `win.add-bookmark` | `<Ctrl>d` |
 | `sort-by-name` | `win.sort-by::name` | |
 | `sort-by-size` | `win.sort-by::size` | |
