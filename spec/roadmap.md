@@ -4,6 +4,7 @@ The order of approved work: `planned` requirements, and `partial` ones with a kn
 
 1. `LOOK-21`: error messages as `Could not <verb> “<name>”` (the Open With failure has no quotes).
 2. `LOOK-22`: scrollbars of the file views and other scrolled areas styled like the sidebar's, per the style guide.
+3. `NAV-40`, `VIEW-30`, `LOOK-7`, `LOOK-12`: the sidebar runs the full window height and the path bar row (up button, path, throbber) moves to its right.
 
 Keep the guide's copies of values in sync when this app's look changes (see `PROD-12`).
 
