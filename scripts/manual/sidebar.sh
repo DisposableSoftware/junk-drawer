@@ -32,7 +32,7 @@ click() { # click X Y [BUTTON]
   [ "$(active .class)" = "$APP" ] || { echo "Junk Drawer lost focus" >&2; cleanup; exit 3; }
   point "$1" "$2"; wlrctl pointer click "${3:-left}"; sleep 0.7
 }
-HOME_ROW=92 DOCS_ROW=124 FS_ROW=156 BM1=201 BM2=233   # Recent is the first row
+HOME_ROW=56 DOCS_ROW=88 FS_ROW=120 BM1=165 BM2=197   # Recent is the first row
 
 launch "$D" "$T/cfg"
 shot "$OUT/1-sidebar.png"

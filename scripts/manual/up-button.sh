@@ -19,7 +19,7 @@ point() { # point X Y: moves the pointer to window coordinates X, Y
 }
 click_up() {
   [ "$(active .class)" = "$APP" ] || { echo "Junk Drawer lost focus" >&2; exit 3; }
-  point 24 20; wlrctl pointer click left; sleep 0.6
+  point 169 20; wlrctl pointer click left; sleep 0.6
 }
 crop() { # crop NAME: the top-left corner of the window
   local g; g=$(active '"\(.at[0]),\(.at[1]) 420x90"'); grim -g "$g" "$OUT/$1"
@@ -27,7 +27,7 @@ crop() { # crop NAME: the top-left corner of the window
 
 launch "$D"
 keys -k Home -k Return; keys -k Home -k Return; check "entered Alpha/inner"       "$D/Alpha/inner" "$(title)"
-point 24 20; crop 1-hover.png
+point 169 20; crop 1-hover.png
 click_up;                             check "up goes to Alpha"           "$D/Alpha" "$(title)"
 click_up;                             check "up goes to demo"            "$D" "$(title)"
 # NAV-15 selected Alpha; Return proves the view kept focus and the selection.

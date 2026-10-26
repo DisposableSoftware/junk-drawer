@@ -187,15 +187,16 @@ pub fn open_selecting(
     bar.append(&path);
     bar.append(&spinner);
     content.append(&bar);
+    content.set_hexpand(true);
     let views = gtk::Overlay::builder()
         .child(&stack)
         .vexpand(true)
         .hexpand(true)
         .build();
+    content.append(&views);
     let body = gtk::Box::new(gtk::Orientation::Horizontal, 0);
-    body.append(&views);
-    content.append(&body);
-    window.set_child(Some(&content));
+    body.append(&content);
+    window.set_child(Some(&body));
     // The app may quit before a background save runs.
     window.connect_close_request(|_| {
         state::save_now();
