@@ -20,7 +20,7 @@
 ![Junk Drawer's icon view, with thumbnails and the sidebar](docs/screenshots/icons.png)
 
 Junk Drawer (`junk`) is a minimal file manager for tiling Wayland setups. It has no
-toolbar, status bar or libadwaita, and every action can be bound to keys of your choice.
+toolbar or libadwaita, only an optional status bar (<kbd>F10</kbd>), and every action can be bound to keys of your choice.
 
 ## Features
 
