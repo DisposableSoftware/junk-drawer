@@ -110,7 +110,11 @@ pub fn load(cfg: &Config) {
     let provider = gtk::CssProvider::new();
     provider.load_from_string(&css(
         cfg,
-        &std::fs::read_to_string(user_css).unwrap_or_default(),
+        &if crate::screenshot::enabled() {
+            String::new()
+        } else {
+            std::fs::read_to_string(user_css).unwrap_or_default()
+        },
     ));
     gtk::style_context_add_provider_for_display(
         &display,

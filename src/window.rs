@@ -1,6 +1,6 @@
 use crate::{
     caption, clipboard, config, dialog, dnd, help, keys, listing, location, menu, openwith, ops,
-    properties, rename, sidebar, sort, state, status_bar, thumbnail, zoom,
+    properties, rename, screenshot, sidebar, sort, state, status_bar, thumbnail, zoom,
 };
 use gtk::{gdk, gio, glib, pango, prelude::*};
 use std::cell::{Cell, RefCell};
@@ -33,6 +33,9 @@ impl State {
     }
 
     fn navigate(&self, window: &gtk::ApplicationWindow, dest: gio::File, record: bool) {
+        if screenshot::enabled() {
+            return;
+        }
         let Some(current) = self.dir() else { return };
         if current.equal(&dest) {
             return;
@@ -56,6 +59,9 @@ impl State {
     }
 
     fn step(&self, window: &gtk::ApplicationWindow, forward: bool) {
+        if screenshot::enabled() {
+            return;
+        }
         let (from, to) = if forward {
             (&self.forward, &self.back)
         } else {
@@ -72,6 +78,13 @@ impl State {
 }
 
 pub fn open(app: &gtk::Application, dir: &gio::File) {
+    if screenshot::enabled() {
+        // One window, always on the sandbox (`INT-33`, `NAV-45`).
+        if app.windows().is_empty() {
+            open_selecting(app, &screenshot::sandbox(), &[], None);
+        }
+        return;
+    }
     open_selecting(app, dir, &[], None);
 }
 
@@ -174,7 +187,10 @@ pub fn open_selecting(
     window
         .bind_property("title", &up, "sensitive")
         .transform_to(|_, title: Option<String>| {
-            Some(title.is_some_and(|t| gio::File::for_parse_name(&t).parent().is_some()))
+            Some(
+                !screenshot::enabled()
+                    && title.is_some_and(|t| gio::File::for_parse_name(&t).parent().is_some()),
+            )
         })
         .sync_create()
         .build();
@@ -306,6 +322,9 @@ pub fn open_selecting(
 
     if let Some(id) = startup_id.filter(|id| !id.is_empty()) {
         window.set_startup_id(id);
+    }
+    if screenshot::enabled() {
+        screenshot::lock_actions(&window);
     }
     window.present();
     focus_view(&window);
@@ -653,6 +672,9 @@ fn activate(state: &State, window: &gtk::ApplicationWindow, pos: u32) {
 /// A single folder opens in place. With several items, folders open in new windows
 /// and files open in their default apps.
 fn open_items(state: &State, window: &gtk::ApplicationWindow, infos: &[gio::FileInfo]) {
+    if screenshot::enabled() {
+        return;
+    }
     let is_dir = dnd::is_dir;
     if let [info] = infos
         && is_dir(info)

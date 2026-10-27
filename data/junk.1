@@ -36,8 +36,19 @@ Print a short help and exit.
 .TP
 .BR \-V ", " \-\-version
 Print the version and exit.
+.TP
+.B \-\-screenshot
+Open one window on a sandbox of dummy files, for taking screenshots without
+exposing real ones.
+The sandbox is \fI/tmp/junk\-screenshot\fR, made afresh at each start and deleted
+when the window closes.
+The window never leaves it, nothing can change a file, the sidebar lists fixed
+dummy places, and the settings are the defaults: \fIconfig.ini\fR,
+\fIkeybindings.ini\fR, \fIstyle.css\fR and \fIstate.ini\fR are not used.
+Paths and URIs are ignored.
+It runs as its own process, even when Junk Drawer is already running.
 .PP
-Neither option opens a window or contacts a running Junk Drawer.
+\fB\-\-help\fR and \fB\-\-version\fR open no window and contact no running Junk Drawer.
 GApplication's own options, such as
 .BR \-\-gapplication\-service ,
 which D-Bus activation uses (see

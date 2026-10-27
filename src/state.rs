@@ -168,7 +168,10 @@ pub fn get() -> Saved {
     STORE.with(|s| {
         let mut s = s.borrow_mut();
         if !s.loaded {
-            init(&mut s, config::get().remember.then(dir));
+            init(
+                &mut s,
+                (config::get().remember && !crate::screenshot::enabled()).then(dir),
+            );
         }
         s.saved.clone()
     })

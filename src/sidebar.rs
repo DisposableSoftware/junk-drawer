@@ -1,4 +1,4 @@
-use crate::state;
+use crate::{screenshot, state};
 use gtk::{gdk, gio, glib, prelude::*};
 use std::cell::RefCell;
 use std::rc::{Rc, Weak};
@@ -218,6 +218,10 @@ impl Sidebar {
     }
 
     fn fill_places(self: &Rc<Self>) {
+        if screenshot::enabled() {
+            self.fill_screenshot();
+            return;
+        }
         let home = glib::home_dir();
         let icon = |name: &str| gio::ThemedIcon::new(name).upcast::<gio::Icon>();
         // Only when gvfs serves `recent:` (`INT-12`).
@@ -281,7 +285,69 @@ impl Sidebar {
         self.places.update_visibility();
     }
 
+    /// Fixed dummy places and one bookmark, none of them real (`NAV-46`).
+    fn fill_screenshot(self: &Rc<Self>) {
+        let icon = |name: &str| gio::ThemedIcon::new(name).upcast::<gio::Icon>();
+        let places = [
+            (
+                "Recent",
+                "document-open-recent-symbolic",
+                gio::File::for_uri("recent:///"),
+            ),
+            ("Home", "user-home-symbolic", screenshot::sandbox()),
+            (
+                "Desktop",
+                "user-desktop-symbolic",
+                screenshot::place("Desktop"),
+            ),
+            (
+                "Documents",
+                "folder-documents-symbolic",
+                screenshot::place("Documents"),
+            ),
+            (
+                "Downloads",
+                "folder-download-symbolic",
+                screenshot::place("Downloads"),
+            ),
+            ("Music", "folder-music-symbolic", screenshot::place("Music")),
+            (
+                "Pictures",
+                "folder-pictures-symbolic",
+                screenshot::place("Pictures"),
+            ),
+            (
+                "Videos",
+                "folder-videos-symbolic",
+                screenshot::place("Videos"),
+            ),
+        ];
+        for (name, icon_name, file) in places {
+            self.add_row(
+                &self.places,
+                Target::Folder(file),
+                &icon(icon_name),
+                name,
+                None,
+            );
+        }
+        let projects = screenshot::sandbox().child("Projects");
+        self.add_row(
+            &self.bookmarks,
+            Target::Folder(projects.clone()),
+            &icon("folder-symbolic"),
+            "Projects",
+            Some(projects.uri().to_string()),
+        );
+        self.places.update_visibility();
+        self.bookmarks.update_visibility();
+        self.volumes.update_visibility();
+    }
+
     fn fill_bookmarks(self: &Rc<Self>) {
+        if screenshot::enabled() {
+            return;
+        }
         let this = Rc::downgrade(self);
         glib::spawn_future_local(async move {
             let text = read_bookmarks().await;
@@ -308,6 +374,9 @@ impl Sidebar {
     }
 
     fn fill_volumes(self: &Rc<Self>) {
+        if screenshot::enabled() {
+            return;
+        }
         self.volumes.clear();
         let monitor = gio::VolumeMonitor::get();
         for mount in monitor.mounts() {
@@ -501,6 +570,7 @@ pub fn attach(
 
     if let Ok(monitor) =
         bookmarks_file().monitor_file(gio::FileMonitorFlags::NONE, gio::Cancellable::NONE)
+        && !screenshot::enabled()
     {
         let this = Rc::downgrade(&sidebar);
         monitor.connect_changed(move |_, _, _, event| {

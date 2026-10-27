@@ -65,6 +65,9 @@ impl Config {
     /// Reads `config.ini` and `keybindings.ini`, first creating whichever is missing
     /// (`CONF-17`); missing keys fall back to defaults.
     fn load() -> Self {
+        if crate::screenshot::enabled() {
+            return Self::default();
+        }
         Self::load_from(&dir())
     }
 

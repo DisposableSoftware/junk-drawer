@@ -15,6 +15,18 @@ pub fn early(args: impl IntoIterator<Item = OsString>) -> Option<String> {
     None
 }
 
+/// Whether `--screenshot` is among the arguments (`INT-33`).
+pub fn screenshot(args: impl IntoIterator<Item = OsString>) -> bool {
+    for arg in args.into_iter().skip(1) {
+        match arg.to_str() {
+            Some("--") => return false,
+            Some("--screenshot") => return true,
+            _ => {}
+        }
+    }
+    false
+}
+
 fn version() -> String {
     format!("junk {}\n", env!("CARGO_PKG_VERSION"))
 }
@@ -40,6 +52,7 @@ open in it.
 Options:
   -h, --help     Show this help and exit
   -V, --version  Show the version and exit
+      --screenshot  Open a sandbox of dummy files, for screenshots
 
 Files:
   {config:<w$}  settings
@@ -64,10 +77,31 @@ mod tests {
     }
 
     #[test]
+    fn finds_screenshot() {
+        let args = |a: &[&str]| {
+            std::iter::once("junk")
+                .chain(a.iter().copied())
+                .map(OsString::from)
+                .collect::<Vec<_>>()
+        };
+        assert!(screenshot(args(&["--screenshot"])));
+        assert!(screenshot(args(&["/tmp", "--screenshot"])));
+        assert!(!screenshot(args(&["--", "--screenshot"])));
+        assert!(!screenshot(args(&["/tmp"])));
+    }
+
+    #[test]
     fn help_and_version() {
         let help = run(&["--help"]).unwrap();
         assert!(help.starts_with("Usage: junk [OPTION…] [PATH|URI…]\n"));
-        for part in ["--help", "--version", "config.ini", "style.css", "junk(1)"] {
+        for part in [
+            "--help",
+            "--version",
+            "--screenshot",
+            "config.ini",
+            "style.css",
+            "junk(1)",
+        ] {
             assert!(help.contains(part), "help lacks {part}");
         }
         assert_eq!(run(&["/tmp", "-h"]), Some(help));

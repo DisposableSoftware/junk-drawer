@@ -56,6 +56,9 @@ pub fn add_drag_source(
     item: &gtk::ListItem,
     selection: &gtk::MultiSelection,
 ) {
+    if crate::screenshot::enabled() {
+        return;
+    }
     let source = gtk::DragSource::builder()
         .actions(gdk::DragAction::COPY | gdk::DragAction::MOVE)
         .build();
@@ -93,6 +96,9 @@ pub fn add_drop_target(
     widget: &impl IsA<gtk::Widget>,
     dest: impl Fn() -> Option<gio::File> + 'static,
 ) {
+    if crate::screenshot::enabled() {
+        return;
+    }
     let target = gtk::DropTarget::new(
         gdk::FileList::static_type(),
         gdk::DragAction::COPY | gdk::DragAction::MOVE,
