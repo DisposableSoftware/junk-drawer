@@ -117,7 +117,7 @@ window.junk text > selection {
 }
 
 window.junk .path-bar {
-  padding: 8px 18px 0 12px;
+  padding: 8px 18px 8px 12px;
 }
 
 window.junk label.path {
@@ -145,7 +145,7 @@ window.junk .path-bar button.up:disabled {
 
 window.junk label.status-bar {
   color: @overlay1;
-  padding: 0 18px 8px 18px;
+  padding: 8px 18px;
 }
 
 window.junk .caption {
