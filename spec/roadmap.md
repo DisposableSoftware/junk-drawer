@@ -2,8 +2,9 @@
 
 The order of approved work: `planned` requirements, and `partial` ones with a known bug from `/bug`. Change it here when priorities change. `/implement` works through this file: the verification backlog first, then the requirements in the order listed.
 
-1. `LOOK-21`: error messages as `Could not <verb> “<name>”` (the Open With failure has no quotes).
-2. `LOOK-22`: scrollbars of the file views and other scrolled areas styled like the sidebar's, per the style guide.
+1. `LOOK-7`, `LOOK-24`: 8px above and below both the path bar and the status bar (more room above the status bar).
+2. `LOOK-21`: error messages as `Could not <verb> “<name>”` (the Open With failure has no quotes).
+3. `LOOK-22`: scrollbars of the file views and other scrolled areas styled like the sidebar's, per the style guide.
 
 Keep the guide's copies of values in sync when this app's look changes (see `PROD-12`).
 
